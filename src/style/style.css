@@ -1,0 +1,28 @@
+progress {
+  width: 300px;
+  border-radius: 10px;
+  overflow: hidden;
+}
+progress::-webkit-progress-bar {
+  background-color: #b2acac;
+  border-radius: 10px;
+}
+progress::-webkit-progress-value {
+  background-color: #ff0000;
+}
+.image_figure {
+  animation-name: imageAnimation; /* Tên animation */
+  animation-duration: 3s; /* Thời gian chuyển đổi mỗi lần */
+  animation-iteration-count: infinite; /* Vô hạn lần lặp lại */
+  animation-direction: alternate; /* Chuyển đổi hướng lặp lại (lên và xuống) */
+}
+/* Định nghĩa animation keyframes cho lớp image_figure */
+@keyframes imageAnimation {
+  0% {
+    transform: translateY(0); /* Vị trí ban đầu */
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateY(-20px); /* Vị trí cuối cùng (lên 20px) */
+  }
+}
