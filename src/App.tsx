@@ -12,7 +12,7 @@ function App() {
           <Route path="/" element={<Dashboard />}></Route>
           <Route path="/create" element={<Create />}></Route>
           <Route path="/main" element={<Main_lobby />}></Route>
-          <Route path="/pk_map" element={<Pk_Map />}></Route>
+          <Route path="/pk_map/:id" element={<Pk_Map />}></Route>
           <Route path="/detail-hero/:id" element={<Detail_Hero />}></Route>
         </Routes>
       </BrowserRouter>

@@ -1,33 +1,52 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { Modal } from "antd";
 import { ICharacter } from "../interface/characters";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "./contetx/Context";
-import { addDoc, collection } from "firebase/firestore";
+import { addDoc, collection, onSnapshot } from "firebase/firestore";
 import { db } from "../config/firebase";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 const MainLobby = () => {
   const navigate = useNavigate();
   const user_info_firebase = useContext(AuthContext);
-  console.log(user_info_firebase);
+  const [listRoom, setListRoom] = useState<any>([]); // danh sách phòng
   const [open, setOpen] = useState(false);
+  const [openCreateRoom, setOpenCreateRoom] = useState(false);
+  const [NameRoom, setNameRoom] = useState<any>(""); // tên phòng
   const user_info = JSON.parse(localStorage.getItem("dataFigure") || "{}");
   const character: ICharacter = user_info?.character;
+  const checknv: any = user_info_firebase?.filter(
+    (item: any) => item?.my_id == user_info?.my_id
+  );
+  console.log(checknv);
+
   // Tạo phòng mới
-  const createRoom = async (info_room: any) => {
+  const createRoom = async (regime: string, info_room: any) => {
     const info_RoomPk = {
       nameRoom: info_room,
-      id_user_host: user_info?.my_id,
+      name: regime,
+      id_user_host: checknv[0]?.id,
       id_user_guest: "",
-      character_host: user_info?.character,
-      character_guest: "",
+      item_host: user_info,
+      item_guest: "",
     };
     try {
       await addDoc(collection(db, "roomPk"), info_RoomPk);
+      setOpenCreateRoom(false);
       toast.success("Tạo phòng thành công");
     } catch (error) {}
   };
+  useEffect(() => {
+    const unsubscribe = onSnapshot(collection(db, "roomPk"), (snapshot) => {
+      const data = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setListRoom(data);
+    });
+    return () => unsubscribe();
+  }, []);
   return (
     <div className="container-box">
       <ToastContainer />
@@ -167,6 +186,22 @@ const MainLobby = () => {
           </div>
         </div>
       </Modal>
+      <Modal
+        open={openCreateRoom}
+        onOk={() => createRoom("1 vs 1", NameRoom)}
+        onCancel={() => setOpenCreateRoom(false)}
+        closeIcon={false}
+        okButtonProps={{ style: { backgroundColor: "blue" } }}
+      >
+        <input
+          type="text"
+          className="w-full h-10 border-2  border-blue-400 focus:border-blue-600 outline-none rounded-md pl-2"
+          name=""
+          id=""
+          value={NameRoom}
+          onChange={(e) => setNameRoom(e.target.value)}
+        />
+      </Modal>
       <div className="box-video w-screen h-screen">
         <div className="video w-full h-full relative">
           <video
@@ -185,7 +220,7 @@ const MainLobby = () => {
             <div className="button__countervailing flex gap-10 absolute bottom-10 left-1/2 -translate-x-1/2">
               <div className="button__1vs1">
                 <button
-                  onClick={() => createRoom("1 vs 1")}
+                  onClick={() => setOpenCreateRoom(true)}
                   className="px-14 py-3 bg-blue-500 text-white font-bold rounded-md"
                 >
                   1 vs 1
@@ -215,7 +250,7 @@ const MainLobby = () => {
               </div>
             </div>
           </div>
-          <div className="list-hero absolute top-10">
+          <div className="list-hero absolute top-10 left-10">
             <div className="list bg-white rounded-md ring pl-3 pr-10 py-3">
               <h1 className="text-xl font-normal">Danh sách hero</h1>
               {user_info_firebase &&
@@ -238,6 +273,48 @@ const MainLobby = () => {
                               Name:{" "}
                               <span className="text-md font-normal">
                                 {item?.name}
+                              </span>
+                            </h2>
+                            <span>
+                              Class:{" "}
+                              <span className="text-md font-normal">
+                                {item?.class}
+                              </span>
+                            </span>
+                          </div>
+                        </div>
+                      </Link>
+                    );
+                  }
+                })}
+            </div>
+          </div>
+          <div className="list-room absolute top-32 right-10 ">
+            <div className="list bg-white rounded-md ring-4 pl-3 pr-10 py-3">
+              <h1 className="text-xl font-normal">Danh sách Room của bạn</h1>
+              {listRoom &&
+                listRoom?.map((item: any, index: any) => {
+                  if (
+                    item?.id_user_host == checknv[0]?.id ||
+                    item?.id_user_guest == checknv[0]?.id
+                  ) {
+                    return (
+                      <Link key={index} to={`/pk_map/${item?.id}`}>
+                        <div
+                          key={index}
+                          className="hero flex items-center gap-3 border-b-2 border-blue-500 border-s-2 p-2 cursor-pointer"
+                        >
+                          <div className="image w-14">
+                            <img
+                              src="../../src/assets/Rectangle 507.png"
+                              alt=""
+                            />
+                          </div>
+                          <div className="info-character">
+                            <h2 className="text-lg font-medium">
+                              Name:{" "}
+                              <span className="text-md font-normal">
+                                {item?.nameRoom}
                               </span>
                             </h2>
                             <span>
