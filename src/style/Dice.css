@@ -1,0 +1,15 @@
+@keyframes roll {
+  0% {
+    transform: translateY(0);
+  }
+  25% {
+    transform: translateY(-40px);
+  }
+  100% {
+    transform: rotate(720deg);
+  }
+}
+
+.dice-rolling {
+  animation: roll 1s linear infinite;
+}

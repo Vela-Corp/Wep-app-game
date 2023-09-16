@@ -26,3 +26,11 @@ progress::-webkit-progress-value {
     transform: translateY(-20px); /* Vị trí cuối cùng (lên 20px) */
   }
 }
+.overflow-auto::-webkit-scrollbar {
+  width: 5px;
+}
+
+.overflow-auto::-webkit-scrollbar-thumb {
+  background-color: rgb(9, 130, 235);
+  border-radius: 10px;
+}

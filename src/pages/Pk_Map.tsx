@@ -1,11 +1,18 @@
 import { useContext, useState, useEffect } from "react";
 import "../style/style.css";
 import { AuthContext } from "./contetx/Context";
-import { doc, getDoc, onSnapshot, updateDoc } from "firebase/firestore";
+import {
+  deleteDoc,
+  doc,
+  getDoc,
+  onSnapshot,
+  updateDoc,
+} from "firebase/firestore";
 import { db } from "../config/firebase";
 import { Modal } from "antd";
 import { useNavigate, useParams } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
+import Dice from "../components/Dice";
 const Pk_Map = () => {
   const navigate = useNavigate();
   const { id } = useParams(); // id phòng
@@ -16,7 +23,6 @@ const Pk_Map = () => {
   console.log(info_RoomPk);
   const user_info = JSON.parse(localStorage.getItem("dataFigure") || "{}");
   const user_info2 = JSON.parse(localStorage.getItem("dataFigure2") || "{}");
-
   useEffect(() => {
     const fetchRoomInfo = async () => {
       try {
@@ -47,7 +53,7 @@ const Pk_Map = () => {
       const roomRef = doc(db, "roomPk", roomCode || "");
       await updateDoc(roomRef, {
         id_user_guest: item?.id,
-        item_guest: { ...item, my_id: item?.id },
+        item_guest: item,
       });
       toast.success("Thêm người chơi thành công");
       console.log("Room updated!");
@@ -73,13 +79,6 @@ const Pk_Map = () => {
       unsubscribe();
     };
   }, [roomCode]);
-  // Tính toán máu của nhân vật sau khi tấn công
-  // const  physics // Sát thương vật lý
-  // const  public // Sát thương phép
-  // const  physicalArmor // Giáp vật lý
-  // const  magicArmor// Giáp phép
-  // const  penetratesPhysicalArmor // Xuyên giáp vật lý
-  // const  magicPenetration // Xuyên giáp phép
   const MaxHp: any = user_info_firebase?.filter(
     (item: any) => item?.my_id == info_RoomPk?.item_host?.my_id
   );
@@ -101,11 +100,14 @@ const Pk_Map = () => {
   };
   const handlActtack = async (idAttack: any) => {
     // sửa máu trên firebase
-    console.log(idAttack);
-    console.log(info_RoomPk?.item_host?.my_id);
     try {
       const roomRef = doc(db, "roomPk", roomCode || "");
-      if (idAttack == info_RoomPk?.item_host?.my_id) {
+      if (
+        idAttack == info_RoomPk?.item_host?.my_id &&
+        info_RoomPk?.current_turn == 1 &&
+        info_RoomPk?.result_dice_nv1 &&
+        info_RoomPk?.result_dice_nv2
+      ) {
         console.log("tấng công người chơi 2");
         const remainingBlood = calculateRemainingBlood(
           info_RoomPk?.item_guest?.character?.blood,
@@ -125,9 +127,17 @@ const Pk_Map = () => {
               blood: remainingBlood,
             },
           },
+          result_dice_nv1: "",
+          result_dice_nv2: "",
+          current_turn: 2,
         });
       }
-      if (idAttack == info_RoomPk?.item_guest?.my_id) {
+      if (
+        idAttack == info_RoomPk?.item_guest?.my_id &&
+        info_RoomPk?.current_turn == 2 &&
+        info_RoomPk?.result_dice_nv1 &&
+        info_RoomPk?.result_dice_nv2
+      ) {
         console.log("tấng công người chơi 1");
         const remainingBlood = calculateRemainingBlood(
           info_RoomPk?.item_host?.character?.blood,
@@ -147,6 +157,9 @@ const Pk_Map = () => {
               blood: remainingBlood,
             },
           },
+          result_dice_nv1: "",
+          result_dice_nv2: "",
+          current_turn: 1,
         });
       }
     } catch (error) {
@@ -162,20 +175,63 @@ const Pk_Map = () => {
   // Người chiến thắng
   useEffect(() => {
     if (info_RoomPk?.item_host?.character?.blood <= 0) {
-      toast.success("Người chơi 2 thắng");
+      // xoá phòng và xoá user_info2
+      setTimeout(async () => {
+        try {
+          const roomRef = doc(db, "roomPk", roomCode || "");
+          await deleteDoc(roomRef);
+        } catch (error) {
+          console.log(error);
+        }
+        localStorage.removeItem("dataFigure2");
+        toast.success("Người chơi 2 thắng");
+        navigate("/main");
+      }, 2000);
     }
+
     if (info_RoomPk?.item_guest?.character?.blood <= 0) {
-      toast.success("Người chơi 1 thắng");
+      // xoá phòng và xoá user_info2
+      setTimeout(async () => {
+        try {
+          const roomRef = doc(db, "roomPk", roomCode || "");
+          await deleteDoc(roomRef);
+        } catch (error) {
+          console.log("xoá phòng thất bại");
+        }
+        localStorage.removeItem("dataFigure2");
+        toast.success("Người chơi 1 thắng");
+        navigate("/main");
+      }, 2000);
     }
   }, [info_RoomPk]);
+  const checkPlayer = () => {
+    if (info_RoomPk?.result_dice_nv1 && info_RoomPk?.result_dice_nv2) {
+      const check_point =
+        info_RoomPk?.result_dice_nv1 - info_RoomPk?.result_dice_nv2;
+      if (check_point > 0) {
+        return `Lượt chơi này là của ${info_RoomPk?.item_host?.name} `;
+      }
+      if (check_point < 0) {
+        return `Lượt chơi này là của ${info_RoomPk?.item_guest?.name} `;
+      }
+      if (check_point == 0) {
+        return `Hoà`;
+      }
+    }
+  };
+  // check lượt chơi
 
   return (
     <>
       <div className="box-container w-screen max-h-screen">
         <ToastContainer />
         <div className="pk_number text-center ">
-          <h1 className="text-xl font-medium ring w-32 h-10 mx-auto bg-red-500 text-white mt-20 rounded-sm">
-            {info_RoomPk.name}
+          <h1 className="text-xl font-medium ring w-32 h-10 mx-auto bg-red-500 text-white mt-5  rounded-sm">
+            {info_RoomPk.nameRoom}
+          </h1>
+          <h1 className="text-xl font-medium mx-auto  rounded-sm pt-5">
+            {checkPlayer()} <br />
+            {/* <span className="text-sm">{check_Player()}</span> */}
           </h1>
         </div>
         <div className="box relative w-full ">
@@ -198,7 +254,15 @@ const Pk_Map = () => {
               >
                 <div className="progress-bar "></div>
               </progress>
-              <h1>Hệ : {user_info.class}</h1>
+              <div className="flex justify-between">
+                <h1>Hệ : {user_info.class}</h1>
+                <span>
+                  Số điểm gieo xúc xắc :{" "}
+                  {user_info2?.my_id
+                    ? info_RoomPk?.result_dice_nv1
+                    : info_RoomPk?.result_dice_nv2}
+                </span>
+              </div>
               <div className="image_figure w-72">
                 <img src="../../src/assets/nv1.webp" alt="" />
               </div>
@@ -212,6 +276,9 @@ const Pk_Map = () => {
                   </button>
                 </div>
               </div>
+            </div>
+            <div className="dices text-center w-full mx-auto">
+              <Dice roomCode={id} info_RoomPk={info_RoomPk} />
             </div>
             {info_RoomPk.id_user_guest !== "" ? (
               <div className="figure__boold absolute top-10 right-10">
@@ -232,13 +299,24 @@ const Pk_Map = () => {
                 >
                   <div className="progress-bar "></div>
                 </progress>
-                <h1>Hệ :{user_info2.class || info_RoomPk?.item_host?.class}</h1>
+                <div className="flex justify-between">
+                  <h1>
+                    Hệ :{user_info2.class || info_RoomPk?.item_host?.class}
+                  </h1>
+                  <span>
+                    Số điểm gieo xúc xắc :{" "}
+                    {user_info2?.my_id
+                      ? info_RoomPk?.result_dice_nv2
+                      : info_RoomPk?.result_dice_nv1}
+                  </span>
+                </div>
+
                 <div className="image_figure w-72">
                   <img src="../../src/assets/nv2.webp" alt="" />
                 </div>
               </div>
             ) : (
-              <div className="figure__boold absolute  right-10">
+              <div className="figure__boold absolute top-10 right-10">
                 <h1 className="text-center text-lg font-medium">
                   Đang chờ người chơi...
                 </h1>

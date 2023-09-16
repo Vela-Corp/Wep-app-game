@@ -3,39 +3,59 @@ import { Modal } from "antd";
 import { ICharacter } from "../interface/characters";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "./contetx/Context";
-import { addDoc, collection, onSnapshot } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  doc,
+  onSnapshot,
+  updateDoc,
+} from "firebase/firestore";
 import { db } from "../config/firebase";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 const MainLobby = () => {
   const navigate = useNavigate();
+  const [nameHero, setNameHero] = useState<any>(""); // tìm kiếm theo tên hero
   const user_info_firebase = useContext(AuthContext);
   const [listRoom, setListRoom] = useState<any>([]); // danh sách phòng
   const [open, setOpen] = useState(false);
   const [openCreateRoom, setOpenCreateRoom] = useState(false);
   const [NameRoom, setNameRoom] = useState<any>(""); // tên phòng
   const user_info = JSON.parse(localStorage.getItem("dataFigure") || "{}");
-  const character: ICharacter = user_info?.character;
+  const character: ICharacter | any = user_info?.character;
   const checknv: any = user_info_firebase?.filter(
     (item: any) => item?.my_id == user_info?.my_id
   );
-  console.log(checknv);
-
   // Tạo phòng mới
   const createRoom = async (regime: string, info_room: any) => {
-    const info_RoomPk = {
-      nameRoom: info_room,
-      name: regime,
-      id_user_host: checknv[0]?.id,
-      id_user_guest: "",
-      item_host: user_info,
-      item_guest: "",
-    };
-    try {
-      await addDoc(collection(db, "roomPk"), info_RoomPk);
-      setOpenCreateRoom(false);
-      toast.success("Tạo phòng thành công");
-    } catch (error) {}
+    if (!!user_info?.name) {
+      const info_RoomPk = {
+        nameRoom: info_room,
+        name: regime,
+        id_user_host: checknv[0]?.id,
+        id_user_guest: "",
+        item_host: user_info,
+        item_guest: "",
+        result_dice_nv1: "",
+        result_dice_nv2: "",
+        isActtack_nv1: false,
+        isActtack_nv2: false,
+        current_turn: 1,
+      };
+      try {
+        await addDoc(collection(db, "roomPk"), info_RoomPk);
+        setOpenCreateRoom(false);
+        setNameRoom("");
+        toast.success("Tạo phòng thành công");
+      } catch (error) {
+        console.log(error);
+      }
+    }
+    if (!user_info) {
+      toast.error("Vui lòng đăng nhập");
+    }
   };
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, "roomPk"), (snapshot) => {
@@ -47,10 +67,49 @@ const MainLobby = () => {
     });
     return () => unsubscribe();
   }, []);
+  const hanldSearch = (e: any) => {
+    e.preventDefault();
+    if (nameHero == "") {
+      toast.error("Vui lòng nhập tên hero");
+      return;
+    }
+    const check = user_info_firebase?.filter(
+      (item: any) => item?.name == nameHero
+    );
+    if (check?.length == 0) {
+      toast.error("Không tìm thấy hero");
+      return;
+    }
+  };
+  //  tăng chỉ số ở thông tin nhân vật
+  const handlIncrease = async (properties: any) => {
+    character[properties] += 100;
+    try {
+      // cập nhật lại chỉ số
+      const userRef = doc(db, "dataFigure", checknv[0]?.id);
+      await updateDoc(userRef, {
+        character: character,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  // lắng nghe sự thay đổi chỉ số nhân vật
+  useEffect(() => {
+    if (checknv[0]?.id) {
+      const userRef = doc(db, "dataFigure", checknv[0]?.id);
+      const unsubscribe = onSnapshot(userRef, (doc) => {
+        const data = doc.data();
+        localStorage.setItem("dataFigure", JSON.stringify(data));
+      });
+      return () => unsubscribe();
+    }
+  }, [checknv[0]?.id]);
+
   return (
     <div className="container-box">
       <ToastContainer />
-      <Modal
+      <Modal // thông tin nhân vật
         title={
           <>
             <h1 className="text-xl font-semibold text-[#FBB42F]">
@@ -90,11 +149,11 @@ const MainLobby = () => {
                     alt=""
                   />
                 </div>
-                <div className="info-character w-1/3 pr-2">
+                <div className="info-character w-2/3 pr-2">
                   <h1 className="text-center text-xl font-semibold">
                     {user_info?.class}
                   </h1>
-                  <div className="character flex items-start gap-5 mt-5">
+                  <div className="character flex items-start justify-between gap-5 mt-5">
                     <div className="cols-1 flex flex-col gap-2">
                       <span className="flex items-center gap-2 text-lg font-medium">
                         <img
@@ -103,6 +162,15 @@ const MainLobby = () => {
                           alt=""
                         />
                         {character?.physics}
+                        <i
+                          onClick={() => handlIncrease("physics")}
+                          className="cursor-pointer "
+                        >
+                          <FontAwesomeIcon
+                            className="text-sm ring-2 ring-black active:ring-2 active:ring-yellow-400 rounded-sm p-[1px]"
+                            icon={faPlus}
+                          />
+                        </i>
                       </span>
                       <span className="flex items-center gap-2 text-lg font-medium">
                         <img
@@ -111,6 +179,15 @@ const MainLobby = () => {
                           alt=""
                         />
                         {character?.blood}
+                        <i
+                          onClick={() => handlIncrease("blood")}
+                          className="cursor-pointer "
+                        >
+                          <FontAwesomeIcon
+                            className="text-sm ring-2 ring-black active:ring-2 active:ring-yellow-400 rounded-sm p-[1px]"
+                            icon={faPlus}
+                          />
+                        </i>
                       </span>
                       <span className="flex items-center gap-2 text-lg font-medium">
                         <img
@@ -119,6 +196,15 @@ const MainLobby = () => {
                           alt=""
                         />
                         {character?.physicalArmor}
+                        <i
+                          onClick={() => handlIncrease("physicalArmor")}
+                          className="cursor-pointer "
+                        >
+                          <FontAwesomeIcon
+                            className="text-sm ring-2 ring-black active:ring-2 active:ring-yellow-400 rounded-sm p-[1px]"
+                            icon={faPlus}
+                          />
+                        </i>
                       </span>
                       <span className="flex items-center gap-2 text-lg font-medium">
                         <img
@@ -127,6 +213,17 @@ const MainLobby = () => {
                           alt=""
                         />
                         {character?.penetratesPhysicalArmor}
+                        <i
+                          onClick={() =>
+                            handlIncrease("penetratesPhysicalArmor")
+                          }
+                          className="cursor-pointer "
+                        >
+                          <FontAwesomeIcon
+                            className="text-sm ring-2 ring-black active:ring-2 active:ring-yellow-400 rounded-sm p-[1px]"
+                            icon={faPlus}
+                          />
+                        </i>
                       </span>
                       <span className="flex items-center gap-2 text-lg font-medium">
                         <img
@@ -135,6 +232,15 @@ const MainLobby = () => {
                           alt=""
                         />
                         {character?.attackSpeed}
+                        <i
+                          onClick={() => handlIncrease("attackSpeed")}
+                          className="cursor-pointer "
+                        >
+                          <FontAwesomeIcon
+                            className="text-sm ring-2 ring-black active:ring-2 active:ring-yellow-400 rounded-sm p-[1px]"
+                            icon={faPlus}
+                          />
+                        </i>
                       </span>
                     </div>
                     <div className="cols-2 flex flex-col gap-2">
@@ -145,6 +251,15 @@ const MainLobby = () => {
                           alt=""
                         />
                         {character?.public}
+                        <i
+                          onClick={() => handlIncrease("public")}
+                          className="cursor-pointer "
+                        >
+                          <FontAwesomeIcon
+                            className="text-sm ring-2 ring-black active:ring-2 active:ring-yellow-400 rounded-sm p-[1px]"
+                            icon={faPlus}
+                          />
+                        </i>
                       </span>
                       <span className="flex items-center gap-2 text-lg font-medium">
                         <img
@@ -153,6 +268,15 @@ const MainLobby = () => {
                           alt=""
                         />
                         {character?.runningSpeed}
+                        <i
+                          onClick={() => handlIncrease("runningSpeed")}
+                          className="cursor-pointer "
+                        >
+                          <FontAwesomeIcon
+                            className="text-sm ring-2 ring-black active:ring-2 active:ring-yellow-400 rounded-sm p-[1px]"
+                            icon={faPlus}
+                          />
+                        </i>
                       </span>
                       <span className="flex items-center gap-2 text-lg font-medium">
                         <img
@@ -161,6 +285,15 @@ const MainLobby = () => {
                           alt=""
                         />
                         {character?.magicArmor}
+                        <i
+                          onClick={() => handlIncrease("magicArmor")}
+                          className="cursor-pointer "
+                        >
+                          <FontAwesomeIcon
+                            className="text-sm ring-2 ring-black active:ring-2 active:ring-yellow-400 rounded-sm p-[1px]"
+                            icon={faPlus}
+                          />
+                        </i>
                       </span>
                       <span className="flex items-center gap-2 text-lg font-medium">
                         <img
@@ -169,6 +302,15 @@ const MainLobby = () => {
                           alt=""
                         />
                         {character?.magicPenetration}
+                        <i
+                          onClick={() => handlIncrease("magicPenetration")}
+                          className="cursor-pointer "
+                        >
+                          <FontAwesomeIcon
+                            className="text-sm ring-2 ring-black active:ring-2 active:ring-yellow-400 rounded-sm p-[1px]"
+                            icon={faPlus}
+                          />
+                        </i>
                       </span>
                       <span className="flex items-center gap-2 text-lg font-medium">
                         <img
@@ -177,6 +319,15 @@ const MainLobby = () => {
                           alt=""
                         />
                         {character?.cooldown}
+                        <i
+                          onClick={() => handlIncrease("cooldown")}
+                          className="cursor-pointer "
+                        >
+                          <FontAwesomeIcon
+                            className="text-sm ring-2 ring-black active:ring-2 active:ring-yellow-400 rounded-sm p-[1px]"
+                            icon={faPlus}
+                          />
+                        </i>
                       </span>
                     </div>
                   </div>
@@ -186,7 +337,7 @@ const MainLobby = () => {
           </div>
         </div>
       </Modal>
-      <Modal
+      <Modal // tạo phòng
         open={openCreateRoom}
         onOk={() => createRoom("1 vs 1", NameRoom)}
         onCancel={() => setOpenCreateRoom(false)}
@@ -223,17 +374,7 @@ const MainLobby = () => {
                   onClick={() => setOpenCreateRoom(true)}
                   className="px-14 py-3 bg-blue-500 text-white font-bold rounded-md"
                 >
-                  1 vs 1
-                </button>
-              </div>
-              <div className="button__3vs3">
-                <button className="px-14 py-3 bg-blue-500 text-white font-bold rounded-md">
-                  3 vs 3
-                </button>
-              </div>
-              <div className="button__5vs5">
-                <button className="px-14 py-3 bg-blue-500 text-white font-bold rounded-md">
-                  5 vs 5
+                  Tạo Phòng
                 </button>
               </div>
             </div>
@@ -251,8 +392,21 @@ const MainLobby = () => {
             </div>
           </div>
           <div className="list-hero absolute top-10 left-10">
-            <div className="list bg-white rounded-md ring pl-3 pr-10 py-3">
-              <h1 className="text-xl font-normal">Danh sách hero</h1>
+            <div className="list bg-white rounded-md ring pl-3 pr-10 py-3 max-h-[500px] overflow-auto ">
+              <h1 className="text-xl font-normal">Danh sách hero khác</h1>
+              <div className="search">
+                <form onSubmit={hanldSearch}>
+                  <input
+                    className="w-full outline-none border-2  border-yellow-300 focus:border-yellow-500 pl-2"
+                    placeholder="Tìm kiếm tên Hero"
+                    value={nameHero}
+                    onChange={(e) => setNameHero(e.target.value)}
+                    type="text"
+                    name=""
+                    id=""
+                  />
+                </form>
+              </div>
               {user_info_firebase &&
                 user_info_firebase?.map((item: any, index) => {
                   if (item?.my_id != user_info?.my_id) {
@@ -290,7 +444,7 @@ const MainLobby = () => {
             </div>
           </div>
           <div className="list-room absolute top-32 right-10 ">
-            <div className="list bg-white rounded-md ring-4 pl-3 pr-10 py-3">
+            <div className="list bg-white rounded-md ring-4 pl-3 pr-10 py-3 max-h-[500px] overflow-auto">
               <h1 className="text-xl font-normal">Danh sách Room của bạn</h1>
               {listRoom &&
                 listRoom?.map((item: any, index: any) => {
@@ -318,10 +472,7 @@ const MainLobby = () => {
                               </span>
                             </h2>
                             <span>
-                              Class:{" "}
-                              <span className="text-md font-normal">
-                                {item?.class}
-                              </span>
+                              <span className="text-md font-normal"></span>
                             </span>
                           </div>
                         </div>
