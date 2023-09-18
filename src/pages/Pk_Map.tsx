@@ -22,15 +22,14 @@ const Pk_Map = () => {
   const [info_RoomPk, setInfo_RoomPk] = useState<any>([]);
   const user_info = JSON.parse(localStorage.getItem("dataFigure") || "{}");
   const user_info2 = JSON.parse(localStorage.getItem("dataFigure2") || "{}");
+
   useEffect(() => {
     const fetchRoomInfo = async () => {
       try {
         // Tạo một tham chiếu đến tài liệu phòng trong Firestore
         const roomRef = doc(db, "roomPk", roomCode || "");
-
         // Lấy thông tin phòng từ Firestore
         const roomSnapshot = await getDoc(roomRef);
-
         if (roomSnapshot.exists()) {
           // Dữ liệu phòng đã được tìm thấy
           const roomData = roomSnapshot.data();
@@ -73,8 +72,8 @@ const Pk_Map = () => {
         navigate("/main");
       }
     });
+
     return () => {
-      // Hủy đăng ký lắng nghe khi component unmount
       unsubscribe();
     };
   }, [roomCode]);
@@ -116,7 +115,6 @@ const Pk_Map = () => {
           info_RoomPk?.item_host?.character?.penetratesPhysicalArmor,
           info_RoomPk?.item_host?.character?.magicPenetration
         );
-
         await updateDoc(roomRef, {
           item_guest: {
             ...info_RoomPk?.item_guest,
@@ -146,7 +144,6 @@ const Pk_Map = () => {
           info_RoomPk?.item_guest?.character?.penetratesPhysicalArmor,
           info_RoomPk?.item_guest?.character?.magicPenetration
         );
-
         await updateDoc(roomRef, {
           item_host: {
             ...info_RoomPk?.item_host,
@@ -186,7 +183,6 @@ const Pk_Map = () => {
         navigate("/main");
       }, 2000);
     }
-
     if (info_RoomPk?.item_guest?.character?.blood <= 0) {
       // xoá phòng và xoá user_info2
       setTimeout(async () => {
@@ -217,7 +213,6 @@ const Pk_Map = () => {
       }
     }
   };
-
   return (
     <>
       <div className="box-container w-screen max-h-screen">
@@ -261,7 +256,11 @@ const Pk_Map = () => {
                 </span>
               </div>
               <div className="image_figure w-72">
-                <img src="../../src/assets/nv1.webp" alt="" />
+                {user_info2?.my_id ? (
+                  <img src="/nv1.webp" alt="" />
+                ) : (
+                  <img src="/nv2.webp" alt="" />
+                )}
               </div>
               <div className="skills text-center mt-10">
                 <div className={`skill`}>
@@ -329,7 +328,11 @@ const Pk_Map = () => {
                 </div>
 
                 <div className="image_figure w-72">
-                  <img src="../../src/assets/nv2.webp" alt="" />
+                  {user_info2?.my_id ? (
+                    <img src="/nv2.webp" alt="" />
+                  ) : (
+                    <img src="/nv1.webp" alt="" />
+                  )}
                 </div>
                 <div className="skills text-center mt-10">
                   <div className={`skill`}>
@@ -388,7 +391,7 @@ const Pk_Map = () => {
                     style: { backgroundColor: "#FBB42F", width: "100px" },
                   }}
                 >
-                  <div className="list bg-white rounded-md ring pl-3 pr-10 py-3">
+                  <div className="list bg-white rounded-md ring pl-3 pr-10 py-3 max-h-[500px] overflow-auto">
                     {user_info_firebase &&
                       user_info_firebase?.map((item: any, index) => {
                         if (item?.my_id != user_info?.my_id) {
@@ -399,10 +402,7 @@ const Pk_Map = () => {
                               className="hero flex items-center gap-3 border-b-2 border-yellow-500 border-s-2 p-2 cursor-pointer"
                             >
                               <div className="image w-14">
-                                <img
-                                  src="../../src/assets/Rectangle 507.png"
-                                  alt=""
-                                />
+                                <img src={`/Rectangle507.png`} alt="" />
                               </div>
                               <div className="info-character">
                                 <h2 className="text-lg font-medium">

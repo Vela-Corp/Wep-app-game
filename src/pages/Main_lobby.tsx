@@ -147,7 +147,7 @@ const MainLobby = () => {
                 </h3>
               </div>
               <div className="image_avatar w-32">
-                <img src="../../src/assets/Rectangle 507.png" alt="" />
+                <img src="../../src/assets/Rectangle507.png" alt="" />
               </div>
             </div>
             <div className="content-character bg-white rounded-md p-3 mt-3">
@@ -155,7 +155,7 @@ const MainLobby = () => {
                 <div className="big-image w-2/3">
                   <img
                     className="w-full object-cover"
-                    src="../../src/assets/Rectangle 512.png"
+                    src="https://thuthuatnhanh.com/wp-content/uploads/2022/12/hinh-anh-tanjiro.jpg"
                     alt=""
                   />
                 </div>
@@ -168,7 +168,7 @@ const MainLobby = () => {
                       <span className="flex items-center gap-2 text-lg font-medium">
                         <img
                           className="w-6"
-                          src="../../src/assets/image 39.png"
+                          src="../../src/assets/image39.png"
                           alt=""
                         />
                         {character?.physics}
@@ -185,7 +185,7 @@ const MainLobby = () => {
                       <span className="flex items-center gap-2 text-lg font-medium">
                         <img
                           className="w-6"
-                          src="../../src/assets/image 41.png"
+                          src="../../src/assets/image41.png"
                           alt=""
                         />
                         {character?.blood}
@@ -202,7 +202,7 @@ const MainLobby = () => {
                       <span className="flex items-center gap-2 text-lg font-medium">
                         <img
                           className="w-6"
-                          src="../../src/assets/image 40 (1).png"
+                          src="../../src/assets/image40(1).png"
                           alt=""
                         />
                         {character?.physicalArmor}
@@ -219,7 +219,7 @@ const MainLobby = () => {
                       <span className="flex items-center gap-2 text-lg font-medium">
                         <img
                           className="w-6"
-                          src="../../src/assets/image 47.png"
+                          src="../../src/assets/image47.png"
                           alt=""
                         />
                         {character?.penetratesPhysicalArmor}
@@ -238,7 +238,7 @@ const MainLobby = () => {
                       <span className="flex items-center gap-2 text-lg font-medium">
                         <img
                           className="w-6"
-                          src="../../src/assets/image 48.png"
+                          src="../../src/assets/image48.png"
                           alt=""
                         />
                         {character?.attackSpeed}
@@ -257,7 +257,7 @@ const MainLobby = () => {
                       <span className="flex items-center gap-2 text-lg font-medium">
                         <img
                           className="w-6"
-                          src="../../src/assets/image 45.png"
+                          src="../../src/assets/image45.png"
                           alt=""
                         />
                         {character?.public}
@@ -274,7 +274,7 @@ const MainLobby = () => {
                       <span className="flex items-center gap-2 text-lg font-medium">
                         <img
                           className="w-6"
-                          src="../../src/assets/image 42.png"
+                          src="../../src/assets/image42.png"
                           alt=""
                         />
                         {character?.runningSpeed}
@@ -291,7 +291,7 @@ const MainLobby = () => {
                       <span className="flex items-center gap-2 text-lg font-medium">
                         <img
                           className="w-6"
-                          src="../../src/assets/image 40.png"
+                          src="../../src/assets/image40.png"
                           alt=""
                         />
                         {character?.magicArmor}
@@ -308,7 +308,7 @@ const MainLobby = () => {
                       <span className="flex items-center gap-2 text-lg font-medium">
                         <img
                           className="w-6"
-                          src="../../src/assets/image 46.png"
+                          src="../../src/assets/image46.png"
                           alt=""
                         />
                         {character?.magicPenetration}
@@ -325,7 +325,7 @@ const MainLobby = () => {
                       <span className="flex items-center gap-2 text-lg font-medium">
                         <img
                           className="w-6"
-                          src="../../src/assets/image 49.png"
+                          src="../../src/assets/image49.png"
                           alt=""
                         />
                         {character?.cooldown}
@@ -365,7 +365,7 @@ const MainLobby = () => {
       </Modal>
       <div className="box-video w-screen h-screen">
         <div className="video w-full h-full relative">
-          <video
+          {/* <video
             autoPlay={true}
             loop={true}
             className="w-full h-full"
@@ -376,7 +376,16 @@ const MainLobby = () => {
             }}
           >
             <source src="../../public/Video-intro.mp4" type="video/mp4" />
-          </video>
+          </video> */}
+          {
+            // nếu video không chạy được thì sử dụng ảnh
+
+            <img
+              className="w-full h-full object-cover"
+              src="https://tophinhanhdep.com/wp-content/uploads/2021/10/Kimetsu-No-Yaiba-Computer-Wallpapers.jpg"
+              alt=""
+            />
+          }
           <div className="content-box absolute w-full h-full top-0">
             <div className="button__countervailing flex gap-10 absolute bottom-10 left-1/2 -translate-x-1/2">
               <div className="button__1vs1">
@@ -427,10 +436,7 @@ const MainLobby = () => {
                           className="hero flex items-center gap-3 border-b-2 border-yellow-500 border-s-2 p-2 cursor-pointer"
                         >
                           <div className="image w-14">
-                            <img
-                              src="../../src/assets/Rectangle 507.png"
-                              alt=""
-                            />
+                            <img src={`/Rectangle507.png`} alt="" />
                           </div>
                           <div className="info-character">
                             <h2 className="text-lg font-medium">
@@ -474,10 +480,7 @@ const MainLobby = () => {
                         >
                           <div className="flex items-center gap-2 w-full">
                             <div className="image w-14">
-                              <img
-                                src="../../src/assets/Rectangle 507.png"
-                                alt=""
-                              />
+                              <img src={`/Rectangle507.png`} alt="" />
                             </div>
                             <div className="info-character">
                               <h2 className="text-lg font-medium">
@@ -490,7 +493,11 @@ const MainLobby = () => {
                             </div>
                           </div>
                         </Link>
-                        <div className="btn_delete_room mt-2 text-right">
+                        <div
+                          className={`${
+                            item?.id_user_host != checknv[0]?.id ? "hidden" : ""
+                          } btn_delete_room mt-2 text-right`}
+                        >
                           <button
                             onClick={() => handlDeleteRoom(item?.id)}
                             className="px-4 py-1 bg-red-500 text-white font-semibold rounded-md"
