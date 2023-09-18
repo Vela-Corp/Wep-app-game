@@ -1,4 +1,4 @@
-import { SetStateAction, useState } from "react";
+import { useState } from "react";
 import { ICharacter } from "../interface/characters";
 import { useNavigate } from "react-router-dom";
 import { db } from "../config/firebase";
@@ -6,13 +6,14 @@ import { addDoc, collection } from "firebase/firestore";
 const Create = () => {
   const navigate = useNavigate();
   const [characters, setCharacter] = useState<any>({} as ICharacter);
+  console.log(characters);
   const [name, setName] = useState("");
-  const handlClassChange = (e: { target: { value: SetStateAction<any> } }) => {
+  const handlClassChange = (e: { target: { value: string } }) => {
     if (e.target.value === "") {
       setCharacter({} as ICharacter);
       return;
     }
-    setCharacter(character[e.target.value]);
+    setCharacter(character[e?.target?.value]);
   };
   const handlSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
@@ -42,7 +43,7 @@ const Create = () => {
       console.log(error);
     }
   };
-  const character = {
+  const character: any = {
     support: {
       name: "Hỗ trợ", // Tên nhân vật
       blood: 3500, // Máu

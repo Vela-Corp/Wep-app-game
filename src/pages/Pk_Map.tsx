@@ -20,7 +20,6 @@ const Pk_Map = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const user_info_firebase = useContext(AuthContext);
   const [info_RoomPk, setInfo_RoomPk] = useState<any>([]);
-  console.log(info_RoomPk);
   const user_info = JSON.parse(localStorage.getItem("dataFigure") || "{}");
   const user_info2 = JSON.parse(localStorage.getItem("dataFigure2") || "{}");
   useEffect(() => {
@@ -104,9 +103,8 @@ const Pk_Map = () => {
       const roomRef = doc(db, "roomPk", roomCode || "");
       if (
         idAttack == info_RoomPk?.item_host?.my_id &&
-        info_RoomPk?.current_turn == 1 &&
-        info_RoomPk?.result_dice_nv1 &&
-        info_RoomPk?.result_dice_nv2
+        info_RoomPk?.result_dice_nv1 - info_RoomPk?.result_dice_nv2 > 0 &&
+        info_RoomPk?.isActtack_nv1
       ) {
         console.log("tấng công người chơi 2");
         const remainingBlood = calculateRemainingBlood(
@@ -127,16 +125,16 @@ const Pk_Map = () => {
               blood: remainingBlood,
             },
           },
-          result_dice_nv1: "",
-          result_dice_nv2: "",
-          current_turn: 2,
+          result_dice_nv1: null,
+          result_dice_nv2: null,
+          current_turn: 1,
+          isActtack_nv1: false,
         });
       }
       if (
         idAttack == info_RoomPk?.item_guest?.my_id &&
-        info_RoomPk?.current_turn == 2 &&
-        info_RoomPk?.result_dice_nv1 &&
-        info_RoomPk?.result_dice_nv2
+        info_RoomPk?.result_dice_nv1 - info_RoomPk?.result_dice_nv2 < 0 &&
+        info_RoomPk?.isActtack_nv1
       ) {
         console.log("tấng công người chơi 1");
         const remainingBlood = calculateRemainingBlood(
@@ -157,9 +155,10 @@ const Pk_Map = () => {
               blood: remainingBlood,
             },
           },
-          result_dice_nv1: "",
-          result_dice_nv2: "",
+          result_dice_nv1: null,
+          result_dice_nv2: null,
           current_turn: 1,
+          isActtack_nv1: false,
         });
       }
     } catch (error) {
@@ -168,7 +167,6 @@ const Pk_Map = () => {
   };
   // Tính phần trăm máu
   const Blood = (blood: number, maxBlood: number) => {
-    console.log(blood, maxBlood);
     const percent = (blood / maxBlood) * 100;
     return percent;
   };
@@ -184,7 +182,7 @@ const Pk_Map = () => {
           console.log(error);
         }
         localStorage.removeItem("dataFigure2");
-        toast.success("Người chơi 2 thắng");
+        toast.success(`Người chơi ${info_RoomPk?.item_guest?.name} thắng`);
         navigate("/main");
       }, 2000);
     }
@@ -199,7 +197,7 @@ const Pk_Map = () => {
           console.log("xoá phòng thất bại");
         }
         localStorage.removeItem("dataFigure2");
-        toast.success("Người chơi 1 thắng");
+        toast.success(`Người chơi ${info_RoomPk?.item_host?.name} thắng`);
         navigate("/main");
       }, 2000);
     }
@@ -219,7 +217,6 @@ const Pk_Map = () => {
       }
     }
   };
-  // check lượt chơi
 
   return (
     <>
@@ -267,20 +264,40 @@ const Pk_Map = () => {
                 <img src="../../src/assets/nv1.webp" alt="" />
               </div>
               <div className="skills text-center mt-10">
-                <div className="skill">
-                  <button
-                    onClick={() => handlActtack(user_info?.my_id)}
-                    className="w-32 h-10 text-white font-medium bg-blue-500 ring active:bg-blue-600"
-                  >
-                    Tấn công
-                  </button>
+                <div className={`skill`}>
+                  {!user_info2?.my_id &&
+                    info_RoomPk?.result_dice_nv1 &&
+                    info_RoomPk?.result_dice_nv2 &&
+                    info_RoomPk?.result_dice_nv1 -
+                      info_RoomPk?.result_dice_nv2 <
+                      0 && (
+                      <button
+                        onClick={() => handlActtack(user_info?.my_id)}
+                        className="w-32 h-10 text-white font-medium bg-blue-500 ring active:bg-blue-600"
+                      >
+                        Tấn công
+                      </button>
+                    )}
+                  {user_info2?.my_id &&
+                    info_RoomPk?.result_dice_nv1 &&
+                    info_RoomPk?.result_dice_nv2 &&
+                    info_RoomPk?.result_dice_nv1 -
+                      info_RoomPk?.result_dice_nv2 >
+                      0 && (
+                      <button
+                        onClick={() => handlActtack(user_info?.my_id)}
+                        className="w-32 h-10 text-white font-medium bg-blue-500 ring active:bg-blue-600"
+                      >
+                        Tấn công
+                      </button>
+                    )}
                 </div>
               </div>
             </div>
             <div className="dices text-center w-full mx-auto">
               <Dice roomCode={id} info_RoomPk={info_RoomPk} />
             </div>
-            {info_RoomPk.id_user_guest !== "" ? (
+            {info_RoomPk.id_user_guest !== null ? (
               <div className="figure__boold absolute top-10 right-10">
                 <h1>{user_info2.name || info_RoomPk?.item_host?.name}</h1>
                 <progress
@@ -313,6 +330,36 @@ const Pk_Map = () => {
 
                 <div className="image_figure w-72">
                   <img src="../../src/assets/nv2.webp" alt="" />
+                </div>
+                <div className="skills text-center mt-10">
+                  <div className={`skill`}>
+                    {user_info2?.my_id &&
+                      info_RoomPk?.result_dice_nv1 &&
+                      info_RoomPk?.result_dice_nv2 &&
+                      info_RoomPk?.result_dice_nv1 -
+                        info_RoomPk?.result_dice_nv2 <
+                        0 && (
+                        <button
+                          onClick={() => handlActtack(user_info?.my_id)}
+                          className="w-32 h-10 text-white font-medium bg-blue-500 ring active:bg-blue-600"
+                        >
+                          Tấn công
+                        </button>
+                      )}
+                    {!user_info2?.my_id &&
+                      info_RoomPk?.result_dice_nv1 &&
+                      info_RoomPk?.result_dice_nv2 &&
+                      info_RoomPk?.result_dice_nv1 -
+                        info_RoomPk?.result_dice_nv2 >
+                        0 && (
+                        <button
+                          onClick={() => handlActtack(user_info?.my_id)}
+                          className="w-32 h-10 text-white font-medium bg-blue-500 ring active:bg-blue-600"
+                        >
+                          Tấn công
+                        </button>
+                      )}
+                  </div>
                 </div>
               </div>
             ) : (

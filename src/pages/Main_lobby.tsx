@@ -1,11 +1,12 @@
 import { useState, useContext, useEffect } from "react";
 import { Modal } from "antd";
 import { ICharacter } from "../interface/characters";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { AuthContext } from "./contetx/Context";
 import {
   addDoc,
   collection,
+  deleteDoc,
   doc,
   onSnapshot,
   updateDoc,
@@ -16,12 +17,11 @@ import "react-toastify/dist/ReactToastify.css";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 const MainLobby = () => {
-  const navigate = useNavigate();
   const [nameHero, setNameHero] = useState<any>(""); // tìm kiếm theo tên hero
-  const user_info_firebase = useContext(AuthContext);
+  const user_info_firebase = useContext(AuthContext || []); // list hero trên firebase
   const [listRoom, setListRoom] = useState<any>([]); // danh sách phòng
-  const [open, setOpen] = useState(false);
-  const [openCreateRoom, setOpenCreateRoom] = useState(false);
+  const [open, setOpen] = useState(false); // mở thông tin nhân vật
+  const [openCreateRoom, setOpenCreateRoom] = useState(false); // mở tạo phòng
   const [NameRoom, setNameRoom] = useState<any>(""); // tên phòng
   const user_info = JSON.parse(localStorage.getItem("dataFigure") || "{}");
   const character: ICharacter | any = user_info?.character;
@@ -35,11 +35,11 @@ const MainLobby = () => {
         nameRoom: info_room,
         name: regime,
         id_user_host: checknv[0]?.id,
-        id_user_guest: "",
+        id_user_guest: null,
         item_host: user_info,
-        item_guest: "",
-        result_dice_nv1: "",
-        result_dice_nv2: "",
+        item_guest: null,
+        result_dice_nv1: null,
+        result_dice_nv2: null,
         isActtack_nv1: false,
         isActtack_nv2: false,
         current_turn: 1,
@@ -105,7 +105,17 @@ const MainLobby = () => {
       return () => unsubscribe();
     }
   }, [checknv[0]?.id]);
-
+  // Delete room
+  const handlDeleteRoom = async (id: any) => {
+    try {
+      const roomRef = doc(db, "roomPk", id);
+      await deleteDoc(roomRef);
+      toast.success("Xoá phòng thành công");
+    } catch (error) {
+      console.log(error);
+      toast.error("Xoá phòng thất bại");
+    }
+  };
   return (
     <div className="container-box">
       <ToastContainer />
@@ -393,7 +403,7 @@ const MainLobby = () => {
           </div>
           <div className="list-hero absolute top-10 left-10">
             <div className="list bg-white rounded-md ring pl-3 pr-10 py-3 max-h-[500px] overflow-auto ">
-              <h1 className="text-xl font-normal">Danh sách hero khác</h1>
+              <h1 className="text-xl font-bold">Danh sách hero khác</h1>
               <div className="search">
                 <form onSubmit={hanldSearch}>
                   <input
@@ -444,8 +454,8 @@ const MainLobby = () => {
             </div>
           </div>
           <div className="list-room absolute top-32 right-10 ">
-            <div className="list bg-white rounded-md ring-4 pl-3 pr-10 py-3 max-h-[500px] overflow-auto">
-              <h1 className="text-xl font-normal">Danh sách Room của bạn</h1>
+            <div className="list bg-white rounded-md ring-4 pl-3 pr-5 py-3 max-h-[500px] overflow-auto">
+              <h1 className="text-xl font-bold">Danh sách Room của bạn</h1>
               {listRoom &&
                 listRoom?.map((item: any, index: any) => {
                   if (
@@ -453,30 +463,42 @@ const MainLobby = () => {
                     item?.id_user_guest == checknv[0]?.id
                   ) {
                     return (
-                      <Link key={index} to={`/pk_map/${item?.id}`}>
-                        <div
+                      <div
+                        key={index}
+                        className="hero flex items-center justify-between  gap-3 border-b-2 border-blue-500 border-s-2 p-2 cursor-pointer"
+                      >
+                        <Link
                           key={index}
-                          className="hero flex items-center gap-3 border-b-2 border-blue-500 border-s-2 p-2 cursor-pointer"
+                          to={`/pk_map/${item?.id}`}
+                          className="w-full"
                         >
-                          <div className="image w-14">
-                            <img
-                              src="../../src/assets/Rectangle 507.png"
-                              alt=""
-                            />
+                          <div className="flex items-center gap-2 w-full">
+                            <div className="image w-14">
+                              <img
+                                src="../../src/assets/Rectangle 507.png"
+                                alt=""
+                              />
+                            </div>
+                            <div className="info-character">
+                              <h2 className="text-lg font-medium">
+                                Name:{" "}
+                                <span className="text-md font-normal">
+                                  {item?.nameRoom}
+                                </span>
+                              </h2>
+                              <span>Status:</span>
+                            </div>
                           </div>
-                          <div className="info-character">
-                            <h2 className="text-lg font-medium">
-                              Name:{" "}
-                              <span className="text-md font-normal">
-                                {item?.nameRoom}
-                              </span>
-                            </h2>
-                            <span>
-                              <span className="text-md font-normal"></span>
-                            </span>
-                          </div>
+                        </Link>
+                        <div className="btn_delete_room mt-2 text-right">
+                          <button
+                            onClick={() => handlDeleteRoom(item?.id)}
+                            className="px-4 py-1 bg-red-500 text-white font-semibold rounded-md"
+                          >
+                            Xoá
+                          </button>
                         </div>
-                      </Link>
+                      </div>
                     );
                   }
                 })}

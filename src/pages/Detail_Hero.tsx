@@ -2,7 +2,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useState, useEffect, useContext } from "react";
 import { AuthContext } from "./contetx/Context";
 import { Modal } from "antd";
-import { ICharacter } from "../interface/characters";
 
 const Detail_Hero = () => {
   const { id } = useParams();
