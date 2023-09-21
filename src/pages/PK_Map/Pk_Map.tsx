@@ -1,6 +1,6 @@
 import { useContext, useState, useEffect } from "react";
-import "../style/style.css";
-import { AuthContext } from "./contetx/Context";
+import "../../style/style.css";
+import { AuthContext } from "../contetx/Context";
 import {
   deleteDoc,
   doc,
@@ -8,11 +8,12 @@ import {
   onSnapshot,
   updateDoc,
 } from "firebase/firestore";
-import { db } from "../config/firebase";
+import { db } from "../../config/firebase";
 import { Modal } from "antd";
 import { useNavigate, useParams } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
-import Dice from "../components/Dice";
+import Dice from "../../components/Dice";
+import Invite_ListHero from "./components/Invite_ListHero";
 const Pk_Map = () => {
   const navigate = useNavigate();
   const { id } = useParams(); // id phòng
@@ -22,20 +23,20 @@ const Pk_Map = () => {
   const [info_RoomPk, setInfo_RoomPk] = useState<any>([]);
   const user_info = JSON.parse(localStorage.getItem("dataFigure") || "{}");
   const user_info2 = JSON.parse(localStorage.getItem("dataFigure2") || "{}");
-
+  const checknv: any = user_info_firebase?.filter(
+    (item: any) => item?.my_id == user_info?.my_id
+  );
+  const minutes = Math.floor(info_RoomPk?.timeLast / 60);
+  const seconds = info_RoomPk?.timeLast % 60;
   useEffect(() => {
     const fetchRoomInfo = async () => {
       try {
-        // Tạo một tham chiếu đến tài liệu phòng trong Firestore
         const roomRef = doc(db, "roomPk", roomCode || "");
-        // Lấy thông tin phòng từ Firestore
         const roomSnapshot = await getDoc(roomRef);
         if (roomSnapshot.exists()) {
-          // Dữ liệu phòng đã được tìm thấy
           const roomData = roomSnapshot.data();
           setInfo_RoomPk(roomData);
         } else {
-          // Phòng không tồn tại
           console.error("Phòng không tồn tại.");
         }
       } catch (error) {
@@ -46,37 +47,26 @@ const Pk_Map = () => {
   }, []);
 
   const handleJoinRoom = async (item: any) => {
+    const invitationMessage = "Bạn có muốn tham gia phòng không ?";
     try {
       localStorage.setItem("dataFigure2", JSON.stringify(item));
-      const roomRef = doc(db, "roomPk", roomCode || "");
+      const roomRef = doc(db, "dataFigure", item?.id || "");
       await updateDoc(roomRef, {
-        id_user_guest: item?.id,
-        item_guest: item,
+        invitation: {
+          idRoom: roomCode,
+          message: invitationMessage,
+          inviter: user_info?.name,
+        },
       });
-      toast.success("Thêm người chơi thành công");
+      setIsModalOpen(false);
+      toast.success("Gửi lời mời thành công", {
+        autoClose: 1000,
+      });
       console.log("Room updated!");
     } catch (error) {
       console.error("Error updating room:", error);
     }
   };
-
-  useEffect(() => {
-    const roomRef = doc(db, "roomPk", roomCode || "");
-    // Lắng nghe sự thay đổi trong dữ liệu phòng
-    const unsubscribe = onSnapshot(roomRef, (roomSnapshot) => {
-      if (roomSnapshot.exists()) {
-        const roomData = roomSnapshot.data();
-        setInfo_RoomPk(roomData);
-      } else {
-        console.error("Phòng không tồn tại.");
-        navigate("/main");
-      }
-    });
-
-    return () => {
-      unsubscribe();
-    };
-  }, [roomCode]);
   const MaxHp: any = user_info_firebase?.filter(
     (item: any) => item?.my_id == info_RoomPk?.item_host?.my_id
   );
@@ -97,7 +87,6 @@ const Pk_Map = () => {
     return remainingBlood;
   };
   const handlActtack = async (idAttack: any) => {
-    // sửa máu trên firebase
     try {
       const roomRef = doc(db, "roomPk", roomCode || "");
       if (
@@ -162,40 +151,37 @@ const Pk_Map = () => {
       console.log(error, "lỗi cập nhật máu");
     }
   };
-  // Tính phần trăm máu
+
   const Blood = (blood: number, maxBlood: number) => {
     const percent = (blood / maxBlood) * 100;
     return percent;
   };
   // Người chiến thắng
   useEffect(() => {
-    if (info_RoomPk?.item_host?.character?.blood <= 0) {
-      // xoá phòng và xoá user_info2
+    const handlePlayerWin = async (playerName: string) => {
       setTimeout(async () => {
         try {
           const roomRef = doc(db, "roomPk", roomCode || "");
           await deleteDoc(roomRef);
-        } catch (error) {
-          console.log(error);
-        }
-        localStorage.removeItem("dataFigure2");
-        toast.success(`Người chơi ${info_RoomPk?.item_guest?.name} thắng`);
-        navigate("/main");
-      }, 2000);
-    }
-    if (info_RoomPk?.item_guest?.character?.blood <= 0) {
-      // xoá phòng và xoá user_info2
-      setTimeout(async () => {
-        try {
-          const roomRef = doc(db, "roomPk", roomCode || "");
-          await deleteDoc(roomRef);
+          const user = doc(db, "dataFigure", checknv[0]?.id || "");
+          await updateDoc(user, {
+            status: false,
+          });
         } catch (error) {
           console.log("xoá phòng thất bại");
         }
         localStorage.removeItem("dataFigure2");
-        toast.success(`Người chơi ${info_RoomPk?.item_host?.name} thắng`);
+        toast.success(`Người chơi ${playerName} thắng`);
         navigate("/main");
       }, 2000);
+    };
+
+    if (info_RoomPk?.item_host?.character?.blood <= 0) {
+      handlePlayerWin(info_RoomPk?.item_guest?.name);
+    }
+
+    if (info_RoomPk?.item_guest?.character?.blood <= 0) {
+      handlePlayerWin(info_RoomPk?.item_host?.name);
     }
   }, [info_RoomPk]);
   const checkPlayer = () => {
@@ -213,27 +199,168 @@ const Pk_Map = () => {
       }
     }
   };
+  // Thoát khỏi phòng pk
+  // const handlExits = async () => {
+  //   if (
+  //     window.confirm(
+  //       "Bạn có muốn thoát khỏi phòng không ? \n Nếu thoát khỏi phòng bạn sẽ bị xử thua"
+  //     )
+  //   ) {
+  //     try {
+  //       const roomRef = doc(db, "roomPk", roomCode || "");
+  //       await deleteDoc(roomRef);
+  //       const user = doc(db, "dataFigure", checknv[0]?.id || "");
+  //       await updateDoc(user, {
+  //         status: false,
+  //       });
+  //       localStorage.removeItem("dataFigure2");
+  //       navigate("/main");
+  //     } catch (error) {
+  //       console.log("xoá phòng thất bại");
+  //     }
+  //   }
+  // };
+  useEffect(() => {
+    if (info_RoomPk?.start) {
+      const interval = setInterval(() => {
+        if (info_RoomPk?.timeLast > 0) {
+          const roomRef = doc(db, "roomPk", roomCode || "");
+          updateDoc(roomRef, {
+            timeLast: info_RoomPk?.timeLast - 1,
+          });
+        } else {
+          clearInterval(interval);
+          (async () => {
+            try {
+              const user = doc(db, "dataFigure", checknv[0]?.id || "");
+              await updateDoc(user, {
+                status: false,
+              });
+              const roomRef = doc(db, "roomPk", roomCode || "");
+              await deleteDoc(roomRef);
+              localStorage.removeItem("dataFigure2");
+              if (
+                info_RoomPk?.item_host?.character?.blood -
+                  info_RoomPk?.item_guest?.character?.blood <
+                0
+              ) {
+                toast.success(
+                  `Hết thời gian người thắng là ${info_RoomPk?.item_guest?.name}`
+                );
+              }
+              if (
+                info_RoomPk?.item_guest?.character?.blood -
+                  info_RoomPk?.item_host?.character?.blood <
+                0
+              ) {
+                toast.success(
+                  `Hết thời gian người thắng là ${info_RoomPk?.item_host?.name}`
+                );
+              }
+              if (
+                info_RoomPk?.item_guest?.character?.blood -
+                  info_RoomPk?.item_host?.character?.blood ==
+                0
+              ) {
+                toast.success(`Hết thời gian cả 2 hoà`);
+              }
+
+              navigate("/main");
+            } catch (error) {
+              console.log("Xoá phòng thất bại");
+            }
+          })();
+        }
+      }, 1000); // Đếm thời gian mỗi giây
+      return () => clearInterval(interval);
+    }
+  }, [info_RoomPk?.timeLast, roomCode, checknv, navigate]);
+  useEffect(() => {
+    const roomRef = doc(db, "roomPk", roomCode || "");
+    // Lắng nghe sự thay đổi trong dữ liệu phòng
+    const unsubscribe = onSnapshot(roomRef, (roomSnapshot) => {
+      if (roomSnapshot.exists()) {
+        const roomData = roomSnapshot.data();
+        setInfo_RoomPk(roomData);
+      } else {
+        console.error("Phòng không tồn tại.");
+        navigate("/main");
+      }
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, [roomCode]);
+  useEffect(() => {
+    const intervalId = setInterval(async () => {
+      if (info_RoomPk?.isActtack_nv1 && info_RoomPk?.result_dice_nv1) {
+        // Trường hợp không đánh, mất lượt
+        const roomRef = doc(db, "roomPk", roomCode || "");
+        try {
+          await updateDoc(roomRef, {
+            result_dice_nv1: null,
+            result_dice_nv2: null,
+            current_turn: 1, // Đặt lượt cho người chơi tiếp theo
+            isActtack_nv1: false, // Đặt lại trạng thái tấn công
+          });
+          toast.warning(`Người chơi mất lượt tấn công`, {
+            autoClose: 2000,
+          });
+        } catch (error) {
+          console.log(error, "lỗi cập nhật máu và lượt");
+        }
+      }
+    }, 5000);
+
+    // Xóa interval khi component unmount
+    return () => clearInterval(intervalId);
+  }, [info_RoomPk?.isActtack_nv1]);
   return (
     <>
       <div className="box-container w-screen max-h-screen">
         <ToastContainer />
         <div className="pk_number text-center ">
           <h1 className="text-xl font-medium ring w-32 h-10 mx-auto bg-red-500 text-white mt-5  rounded-sm">
-            {info_RoomPk.nameRoom}
+            {info_RoomPk?.nameRoom}
           </h1>
           <h1 className="text-xl font-medium mx-auto  rounded-sm pt-5">
             {checkPlayer()} <br />
-            {/* <span className="text-sm">{check_Player()}</span> */}
           </h1>
         </div>
         <div className="box relative w-full ">
+          {/* Thời gian phòng*/}
+          <div className="time_room absolute -top-20 left-10 bg-red-500 w-32 h-10 rounded-md ">
+            <button className="text-white   m-auto w-full h-full font-medium">
+              {`${minutes}:${seconds < 10 ? `0${seconds}` : seconds}`}
+            </button>
+          </div>
+          {/* Rời phòng */}
+          {/* <div className="button_exits absolute -top-10 right-10 bg-red-500 w-32 h-10 rounded-md ">
+            <button
+              onClick={handlExits}
+              className="text-white m-auto w-full h-full font-medium"
+            >
+              Rời khỏi phòng
+            </button>
+          </div> */}
           <div className=" pt-20 relative">
             <div className="figure__boold absolute top-10 left-10">
-              <h1 className="">{user_info.name}</h1>
+              <div className="flex justify-between">
+                {" "}
+                <h1 className="">{user_info.name}</h1>
+                <span>
+                  Bỏ lượt{" "}
+                  {user_info2?.my_id
+                    ? info_RoomPk?.times_host
+                    : info_RoomPk?.times_guest}{" "}
+                  lần
+                </span>
+              </div>
               <progress
                 max={100}
                 value={
-                  user_info2.character?.blood
+                  user_info2?.character?.blood
                     ? Blood(
                         info_RoomPk?.item_host?.character?.blood,
                         user_info?.character?.blood
@@ -247,7 +374,7 @@ const Pk_Map = () => {
                 <div className="progress-bar "></div>
               </progress>
               <div className="flex justify-between">
-                <h1>Hệ : {user_info.class}</h1>
+                <h1>Hệ : {user_info?.class}</h1>
                 <span>
                   Số điểm gieo xúc xắc :{" "}
                   {user_info2?.my_id
@@ -255,7 +382,7 @@ const Pk_Map = () => {
                     : info_RoomPk?.result_dice_nv2}
                 </span>
               </div>
-              <div className="image_figure w-72">
+              <div className="image_figure w-64 xl:w-72">
                 {user_info2?.my_id ? (
                   <img src="/nv1.webp" alt="" />
                 ) : (
@@ -280,9 +407,11 @@ const Pk_Map = () => {
                   {user_info2?.my_id &&
                     info_RoomPk?.result_dice_nv1 &&
                     info_RoomPk?.result_dice_nv2 &&
-                    info_RoomPk?.result_dice_nv1 -
-                      info_RoomPk?.result_dice_nv2 >
-                      0 && (
+                    Number(
+                      info_RoomPk?.result_dice_nv1 -
+                        info_RoomPk?.result_dice_nv2 >
+                        0
+                    ) && (
                       <button
                         onClick={() => handlActtack(user_info?.my_id)}
                         className="w-32 h-10 text-white font-medium bg-blue-500 ring active:bg-blue-600"
@@ -294,11 +423,26 @@ const Pk_Map = () => {
               </div>
             </div>
             <div className="dices text-center w-full mx-auto">
-              <Dice roomCode={id} info_RoomPk={info_RoomPk} />
+              {/* Gieo xúc xắc */}
+              <Dice
+                roomCode={id}
+                info_RoomPk={info_RoomPk}
+                checknv={checknv[0]}
+              />
             </div>
             {info_RoomPk.id_user_guest !== null ? (
               <div className="figure__boold absolute top-10 right-10">
-                <h1>{user_info2.name || info_RoomPk?.item_host?.name}</h1>
+                <div className="flex justify-between">
+                  {" "}
+                  <h1>{user_info2.name || info_RoomPk?.item_host?.name}</h1>
+                  <span>
+                    Bỏ lượt{" "}
+                    {user_info2?.my_id
+                      ? info_RoomPk?.times_guest
+                      : info_RoomPk?.times_host}
+                    lần
+                  </span>
+                </div>
                 <progress
                   max={100}
                   value={
@@ -327,7 +471,7 @@ const Pk_Map = () => {
                   </span>
                 </div>
 
-                <div className="image_figure w-72">
+                <div className="image_figure w-64 xl:w-72">
                   {user_info2?.my_id ? (
                     <img src="/nv2.webp" alt="" />
                   ) : (
@@ -339,9 +483,11 @@ const Pk_Map = () => {
                     {user_info2?.my_id &&
                       info_RoomPk?.result_dice_nv1 &&
                       info_RoomPk?.result_dice_nv2 &&
-                      info_RoomPk?.result_dice_nv1 -
-                        info_RoomPk?.result_dice_nv2 <
-                        0 && (
+                      Number(
+                        info_RoomPk?.result_dice_nv1 -
+                          info_RoomPk?.result_dice_nv2 <
+                          0
+                      ) && (
                         <button
                           onClick={() => handlActtack(user_info?.my_id)}
                           className="w-32 h-10 text-white font-medium bg-blue-500 ring active:bg-blue-600"
@@ -381,6 +527,7 @@ const Pk_Map = () => {
                     Thêm người chơi
                   </button>
                 </div>
+                {/* Danh sách Hero */}
                 <Modal
                   title="Danh sách Hero"
                   open={isModalOpen}
@@ -394,31 +541,13 @@ const Pk_Map = () => {
                   <div className="list bg-white rounded-md ring pl-3 pr-10 py-3 max-h-[500px] overflow-auto">
                     {user_info_firebase &&
                       user_info_firebase?.map((item: any, index) => {
-                        if (item?.my_id != user_info?.my_id) {
+                        if (item?.my_id != user_info?.my_id && !item?.status) {
                           return (
-                            <div
-                              onClick={() => handleJoinRoom(item)}
-                              key={index}
-                              className="hero flex items-center gap-3 border-b-2 border-yellow-500 border-s-2 p-2 cursor-pointer"
-                            >
-                              <div className="image w-14">
-                                <img src={`/Rectangle507.png`} alt="" />
-                              </div>
-                              <div className="info-character">
-                                <h2 className="text-lg font-medium">
-                                  Name:{" "}
-                                  <span className="text-md font-normal">
-                                    {item?.name}
-                                  </span>
-                                </h2>
-                                <span>
-                                  Class:{" "}
-                                  <span className="text-md font-normal">
-                                    {item?.class}
-                                  </span>
-                                </span>
-                              </div>
-                            </div>
+                            <Invite_ListHero
+                              item={item}
+                              index={index}
+                              handleJoinRoom={handleJoinRoom}
+                            />
                           );
                         }
                       })}

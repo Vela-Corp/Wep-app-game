@@ -2,7 +2,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useState, useEffect, useContext } from "react";
 import { AuthContext } from "./contetx/Context";
 import { Modal } from "antd";
-
 const Detail_Hero = () => {
   const { id } = useParams();
   const [open, setOpen] = useState(true);
@@ -40,6 +39,7 @@ const Detail_Hero = () => {
           style: { backgroundColor: "#FBB42F", width: "100px" },
         }}
         bodyStyle={{ backgroundColor: "#FBB42F", borderRadius: "10px" }}
+        style={{ top: "40px" }}
       >
         <div className="box-user  mx-auto">
           <div className="info-user p-5 bg-[#FBB42F] rounded-md">
@@ -50,7 +50,7 @@ const Detail_Hero = () => {
                 </h3>
               </div>
               <div className="image_avatar w-32">
-                <img src="../../src/assets/Rectangle 507.png" alt="" />
+                <img src="/Rectangle507.png" alt="" />
               </div>
             </div>
             <div className="content-character bg-white rounded-md p-3 mt-3">
@@ -58,7 +58,7 @@ const Detail_Hero = () => {
                 <div className="big-image w-2/3">
                   <img
                     className="w-full object-cover"
-                    src="../../src/assets/Rectangle 512.png"
+                    src="https://thuthuatnhanh.com/wp-content/uploads/2022/12/hinh-anh-tanjiro.jpg"
                     alt=""
                   />
                 </div>
@@ -71,7 +71,7 @@ const Detail_Hero = () => {
                       <span className="flex items-center gap-2 text-lg font-medium">
                         <img
                           className="w-6"
-                          src="../../src/assets/image 39.png"
+                          src="../../src/assets/image39.png"
                           alt=""
                         />
                         {detailHero?.character?.physics}
@@ -79,7 +79,7 @@ const Detail_Hero = () => {
                       <span className="flex items-center gap-2 text-lg font-medium">
                         <img
                           className="w-6"
-                          src="../../src/assets/image 41.png"
+                          src="../../src/assets/image41.png"
                           alt=""
                         />
                         {detailHero?.character?.blood}
@@ -87,7 +87,7 @@ const Detail_Hero = () => {
                       <span className="flex items-center gap-2 text-lg font-medium">
                         <img
                           className="w-6"
-                          src="../../src/assets/image 40 (1).png"
+                          src="../../src/assets/image40(1).png"
                           alt=""
                         />
                         {detailHero?.character?.physicalArmor}
@@ -95,7 +95,7 @@ const Detail_Hero = () => {
                       <span className="flex items-center gap-2 text-lg font-medium">
                         <img
                           className="w-6"
-                          src="../../src/assets/image 47.png"
+                          src="../../src/assets/image47.png"
                           alt=""
                         />
                         {detailHero?.character?.penetratesPhysicalArmor}
@@ -103,7 +103,7 @@ const Detail_Hero = () => {
                       <span className="flex items-center gap-2 text-lg font-medium">
                         <img
                           className="w-6"
-                          src="../../src/assets/image 48.png"
+                          src="../../src/assets/image48.png"
                           alt=""
                         />
                         {detailHero?.character?.attackSpeed}
@@ -113,7 +113,7 @@ const Detail_Hero = () => {
                       <span className="flex items-center gap-2 text-lg font-medium">
                         <img
                           className="w-6"
-                          src="../../src/assets/image 45.png"
+                          src="../../src/assets/image45.png"
                           alt=""
                         />
                         {detailHero?.character?.magicArmor}
@@ -121,7 +121,7 @@ const Detail_Hero = () => {
                       <span className="flex items-center gap-2 text-lg font-medium">
                         <img
                           className="w-6"
-                          src="../../src/assets/image 42.png"
+                          src="../../src/assets/image42.png"
                           alt=""
                         />
                         {detailHero?.character?.runningSpeed}
@@ -129,7 +129,7 @@ const Detail_Hero = () => {
                       <span className="flex items-center gap-2 text-lg font-medium">
                         <img
                           className="w-6"
-                          src="../../src/assets/image 40.png"
+                          src="../../src/assets/image40.png"
                           alt=""
                         />
                         {detailHero?.character?.magicArmor}
@@ -137,7 +137,7 @@ const Detail_Hero = () => {
                       <span className="flex items-center gap-2 text-lg font-medium">
                         <img
                           className="w-6"
-                          src="../../src/assets/image 46.png"
+                          src="../../src/assets/image46.png"
                           alt=""
                         />
                         {detailHero?.character?.magicPenetration}
@@ -145,7 +145,7 @@ const Detail_Hero = () => {
                       <span className="flex items-center gap-2 text-lg font-medium">
                         <img
                           className="w-6"
-                          src="../../src/assets/image 49.png"
+                          src="../../src/assets/image49.png"
                           alt=""
                         />
                         {detailHero?.character?.cooldown}

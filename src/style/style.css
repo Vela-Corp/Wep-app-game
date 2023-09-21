@@ -3,6 +3,11 @@ progress {
   border-radius: 10px;
   overflow: hidden;
 }
+@media screen and (min-width: 600px) {
+  progress {
+    width: 100%;
+  }
+}
 progress::-webkit-progress-bar {
   background-color: #b2acac;
   border-radius: 10px;

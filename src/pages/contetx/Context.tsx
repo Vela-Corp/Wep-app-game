@@ -3,7 +3,7 @@ import { createContext, useState, useEffect } from "react";
 import { db } from "../../config/firebase";
 export const AuthContext = createContext([]);
 const Context = ({ children }: any) => {
-  const [user, setUser] = useState<any>([]);
+  const [user, setUser] = useState<any>([] || null);
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, "dataFigure"), (snapshot) => {
       const user_info = snapshot.docs.map((doc) => ({

@@ -31,6 +31,8 @@ const Create = () => {
       name: name,
       class: characters.name,
       character: characters,
+      invitation: null,
+      status: false,
     };
     try {
       await addDoc(collection(db, "dataFigure"), dataFigure);
