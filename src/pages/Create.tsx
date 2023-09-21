@@ -17,8 +17,12 @@ const Create = () => {
   };
   const handlSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
-    if (name === "") {
+    if (name === "" || name.trim() === "") {
       alert("Bạn chưa nhập tên nhân vật");
+      return;
+    }
+    if (name.length > 10) {
+      alert("Tên nhân vật không được quá 10 kí tự");
       return;
     }
     if (characters.name === undefined) {
@@ -26,6 +30,7 @@ const Create = () => {
       return;
     }
     const id = Math.floor(Math.random() * 1000000);
+
     const dataFigure = {
       my_id: id,
       name: name,
@@ -35,11 +40,10 @@ const Create = () => {
       status: false,
     };
     try {
+      if (dataFigure !== null) {
+        localStorage.setItem("dataFigure", JSON.stringify(dataFigure));
+      }
       await addDoc(collection(db, "dataFigure"), dataFigure);
-      localStorage.setItem(
-        "dataFigure",
-        JSON.stringify({ ...dataFigure, role: "admin" })
-      );
       navigate("/main");
     } catch (error) {
       console.log(error);
@@ -131,7 +135,7 @@ const Create = () => {
           }}
         >
           <div className="content flex justify-center items-start w-2/3 mx-auto">
-            <div className="form-figure w-3/5 bg-white min-h-[600px] mt-20 bg-opacity-90 rounded-md">
+            <div className="form-figure w-full xl:w-3/5 bg-white min-h-[600px] mt-20 bg-opacity-90 rounded-md">
               <h1 className="text-center pt-2 text-red-600 text-2xl">
                 Tạo nhân vật
               </h1>

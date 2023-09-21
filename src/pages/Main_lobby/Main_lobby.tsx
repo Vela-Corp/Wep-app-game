@@ -8,6 +8,7 @@ import {
   collection,
   deleteDoc,
   doc,
+  getDoc,
   onSnapshot,
   updateDoc,
 } from "firebase/firestore";
@@ -26,13 +27,17 @@ const MainLobby = () => {
   const [open, setOpen] = useState(false); // mở thông tin nhân vật
   const [openCreateRoom, setOpenCreateRoom] = useState(false); // mở tạo phòng
   const [NameRoom, setNameRoom] = useState<any>(""); // tên phòng
-  const user_info = JSON.parse(localStorage.getItem("dataFigure") || "{}");
+  const user_info = JSON.parse(localStorage.getItem("dataFigure") || "null");
   const character: ICharacter | any = user_info?.character;
   const checknv: any = user_info_firebase?.filter(
     (item: any) => item?.my_id == user_info?.my_id
   );
   // Tạo phòng mới
   const createRoom = async (regime: string, info_room: any) => {
+    if (info_room == "" || info_room.trim() == "") {
+      toast.error("Vui lòng nhập tên phòng");
+      return;
+    }
     if (!!user_info?.name) {
       const info_RoomPk: any = {
         nameRoom: info_room,
@@ -65,7 +70,12 @@ const MainLobby = () => {
       }
     }
     if (!user_info) {
-      toast.error("Vui lòng đăng nhập");
+      toast.error("Vui lòng đăng nhập \n chuyển trang sau 2 giây", {
+        autoClose: 1000,
+      });
+      setTimeout(() => {
+        navigate("/create");
+      }, 2000);
     }
   };
   useEffect(() => {
@@ -140,7 +150,15 @@ const MainLobby = () => {
   const acceptInvitation = async () => {
     try {
       const roomRef = doc(db, "roomPk", checknv[0]?.invitation?.idRoom);
-      console.log(roomRef);
+      // nếu phòng đã đủ người thì không cho vào
+      if (checknv[0]?.invitation?.idRoom) {
+        const room = await getDoc(roomRef);
+        const data = room.data();
+        if (data?.id_user_guest != null) {
+          toast.error("Phòng đã đủ người");
+          return;
+        }
+      }
       await updateDoc(roomRef, {
         id_user_guest: checknv[0]?.id,
         item_guest: user_info,
@@ -243,7 +261,7 @@ const MainLobby = () => {
                 className="image w-20 cursor-pointer "
               >
                 <img
-                  className="w-full object-cover"
+                  className="w-full object-cover rounded-full"
                   src="https://img.freepik.com/free-vector/businessman-character-avatar-isolated_24877-60111.jpg?w=2000"
                   alt=""
                 />

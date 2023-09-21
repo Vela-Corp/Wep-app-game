@@ -66,7 +66,7 @@ const Detail_Hero = () => {
                   <h1 className="text-center text-xl font-semibold">
                     {detailHero?.class}
                   </h1>
-                  <div className="character flex items-start gap-5 mt-5">
+                  <div className="character flex items-start gap-3 mt-5">
                     <div className="cols-1 flex flex-col gap-2">
                       <span className="flex items-center gap-2 text-lg font-medium">
                         <img

@@ -321,7 +321,7 @@ const Pk_Map = () => {
       <div className="box-container w-screen max-h-screen">
         <ToastContainer />
         <div className="pk_number text-center ">
-          <h1 className="text-xl font-medium ring w-32 h-10 mx-auto bg-red-500 text-white mt-5  rounded-sm">
+          <h1 className="text-xl font-medium ring w-32 h-10 mx-auto bg-red-500 text-white mt-5 pt-1 rounded-sm">
             {info_RoomPk?.nameRoom}
           </h1>
           <h1 className="text-xl font-medium mx-auto  rounded-sm pt-5">
@@ -382,7 +382,7 @@ const Pk_Map = () => {
                     : info_RoomPk?.result_dice_nv2}
                 </span>
               </div>
-              <div className="image_figure w-64 xl:w-72">
+              <div className="image_figure w-64 xl:w-72 ">
                 {user_info2?.my_id ? (
                   <img src="/nv1.webp" alt="" />
                 ) : (
@@ -407,11 +407,9 @@ const Pk_Map = () => {
                   {user_info2?.my_id &&
                     info_RoomPk?.result_dice_nv1 &&
                     info_RoomPk?.result_dice_nv2 &&
-                    Number(
-                      info_RoomPk?.result_dice_nv1 -
-                        info_RoomPk?.result_dice_nv2 >
-                        0
-                    ) && (
+                    info_RoomPk?.result_dice_nv1 -
+                      info_RoomPk?.result_dice_nv2 >
+                      0 && (
                       <button
                         onClick={() => handlActtack(user_info?.my_id)}
                         className="w-32 h-10 text-white font-medium bg-blue-500 ring active:bg-blue-600"
@@ -439,7 +437,7 @@ const Pk_Map = () => {
                     Bỏ lượt{" "}
                     {user_info2?.my_id
                       ? info_RoomPk?.times_guest
-                      : info_RoomPk?.times_host}
+                      : info_RoomPk?.times_host}{" "}
                     lần
                   </span>
                 </div>
@@ -471,7 +469,7 @@ const Pk_Map = () => {
                   </span>
                 </div>
 
-                <div className="image_figure w-64 xl:w-72">
+                <div className="image_figure w-64 xl:w-72 ">
                   {user_info2?.my_id ? (
                     <img src="/nv2.webp" alt="" />
                   ) : (
@@ -483,11 +481,9 @@ const Pk_Map = () => {
                     {user_info2?.my_id &&
                       info_RoomPk?.result_dice_nv1 &&
                       info_RoomPk?.result_dice_nv2 &&
-                      Number(
-                        info_RoomPk?.result_dice_nv1 -
-                          info_RoomPk?.result_dice_nv2 <
-                          0
-                      ) && (
+                      info_RoomPk?.result_dice_nv1 -
+                        info_RoomPk?.result_dice_nv2 <
+                        0 && (
                         <button
                           onClick={() => handlActtack(user_info?.my_id)}
                           className="w-32 h-10 text-white font-medium bg-blue-500 ring active:bg-blue-600"
@@ -512,14 +508,14 @@ const Pk_Map = () => {
                 </div>
               </div>
             ) : (
-              <div className="figure__boold absolute top-10 right-10">
+              <div className="figure__boold absolute top-14 right-10">
                 <h1 className="text-center text-lg font-medium">
                   Đang chờ người chơi...
                 </h1>
-                <div className="image_figure w-72 mr-20">
-                  <img src="../../src/assets/nv2.webp" alt="" />
+                <div className="image_figure w-64 xl:w-72 ">
+                  <img src="/nv2.webp" alt="" />
                 </div>
-                <div className="add__player text-center mt-5">
+                <div className="add__player text-center mt-5 ml-5">
                   <button
                     onClick={() => setIsModalOpen(true)}
                     className="w-32 h-10 text-white font-medium bg-blue-500 ring active:bg-blue-600"

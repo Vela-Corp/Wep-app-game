@@ -31,11 +31,7 @@ function Dice({ roomCode, info_RoomPk, checknv }: any) {
       alert("Chưa đến lượt bạn");
       return;
     }
-    if (
-      user_info2?.my_id &&
-      info_RoomPk?.current_turn == 1 &&
-      info_RoomPk?.result_dice_nv2
-    ) {
+    if (user_info2?.my_id && info_RoomPk?.current_turn == 2) {
       alert("Bạn đã hết lượt");
       return;
     }
@@ -96,6 +92,7 @@ function Dice({ roomCode, info_RoomPk, checknv }: any) {
             result_dice_nv1: null,
             result_dice_nv2: null,
             timer_guest: 5,
+            isActtack_nv1: false,
           });
 
           return;
@@ -126,7 +123,7 @@ function Dice({ roomCode, info_RoomPk, checknv }: any) {
             );
             return;
           }
-          if (info_RoomPk?.times_guest >= 3) {
+          if (info_RoomPk?.times_guest >= 3000) {
             const user = doc(db, "dataFigure", checknv?.id || "");
             await updateDoc(user, {
               status: false,
