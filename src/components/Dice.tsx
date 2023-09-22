@@ -114,6 +114,7 @@ function Dice({ roomCode, info_RoomPk, checknv }: any) {
             const user = doc(db, "dataFigure", checknv?.id || "");
             await updateDoc(user, {
               status: false,
+              request: null,
             });
             const dice = doc(db, "roomPk", roomCode || "");
             await deleteDoc(dice);
@@ -123,10 +124,11 @@ function Dice({ roomCode, info_RoomPk, checknv }: any) {
             );
             return;
           }
-          if (info_RoomPk?.times_guest >= 3000) {
+          if (info_RoomPk?.times_guest >= 3) {
             const user = doc(db, "dataFigure", checknv?.id || "");
             await updateDoc(user, {
               status: false,
+              request: null,
             });
             const dice = doc(db, "roomPk", roomCode || "");
             await deleteDoc(dice);
@@ -206,7 +208,7 @@ function Dice({ roomCode, info_RoomPk, checknv }: any) {
 
   return (
     <div>
-      <h3 className="text-lg font-normal italic text-center -mt-20 pb-5">
+      <h3 className="text-lg font-normal italic text-center -mt-10 pb-5">
         {!info_RoomPk?.result_dice_nv2
           ? info_RoomPk?.current_turn == 1
             ? `Lượt của ${
@@ -225,7 +227,7 @@ function Dice({ roomCode, info_RoomPk, checknv }: any) {
       </h3>
       <button
         id="roll"
-        className="bg-[#FBB42F] px-5 py-3 ring"
+        className="bg-[#FBB42F] px-5 py-3 ring "
         onClick={rollDice}
         disabled={rolling}
       >

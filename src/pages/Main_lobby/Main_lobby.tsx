@@ -32,6 +32,7 @@ const MainLobby = () => {
   const checknv: any = user_info_firebase?.filter(
     (item: any) => item?.my_id == user_info?.my_id
   );
+
   // Tạo phòng mới
   const createRoom = async (regime: string, info_room: any) => {
     if (info_room == "" || info_room.trim() == "") {
@@ -56,6 +57,7 @@ const MainLobby = () => {
         times_guest: 0,
         timer_host: 5,
         timer_guest: 5,
+        request: false,
       };
       try {
         await addDoc(collection(db, "roomPk"), info_RoomPk);
@@ -186,6 +188,46 @@ const MainLobby = () => {
       console.log(error);
     }
   };
+
+  // Xin vào phòng
+  const requestRoom = async (id: any) => {
+    const messageRequest = `Người chơi ${checknv[0]?.name} muốn vào phòng của bạn`;
+    try {
+      const roomRef = doc(db, "roomPk", id);
+      // nếu phòng đã đủ người thì không cho vào
+      if (id) {
+        const room = await getDoc(roomRef);
+        const data = room.data();
+        if (data?.id_user_guest != null) {
+          toast.error("Phòng đã đủ người");
+          return;
+        }
+      }
+      await updateDoc(roomRef, {
+        request: {
+          message: messageRequest,
+          id_user_request: checknv[0]?.id,
+          item_request: user_info,
+        },
+      });
+      const user = doc(db, "dataFigure", checknv[0]?.id || "");
+      await updateDoc(user, {
+        status: true,
+      });
+      // navigate(`/pk_map/${id}`);
+      // toast.success("Tham gia phòng thành công");
+    } catch (error) {
+      console.log(error);
+      toast.error("Tham gia phòng thất bại");
+    }
+  };
+  // kiểm tra xem có đang thuộc phòng nào không nếu có thì vào
+  useEffect(() => {
+    if (checknv[0]?.request) {
+      navigate(`/pk_map/${checknv[0]?.request?.idRoom}`);
+    }
+  }, [checknv[0]]);
+
   return (
     <div className="container-box">
       <ToastContainer />
@@ -296,23 +338,17 @@ const MainLobby = () => {
           </div>
           <div className="list-room absolute top-32 right-10 ">
             <div className="list bg-white rounded-md ring-4 pl-3 pr-5 py-3 max-h-[500px] overflow-auto">
-              <h1 className="text-xl font-bold">Danh sách Room của bạn</h1>
+              <h1 className="text-xl font-bold">Danh sách Room </h1>
               {listRoom &&
-                listRoom?.map((item: any, index: any) => {
-                  if (
-                    item?.id_user_host == checknv[0]?.id ||
-                    item?.id_user_guest == checknv[0]?.id
-                  ) {
-                    return (
-                      <List_Room
-                        item={item}
-                        index={index}
-                        checknv={checknv[0]}
-                        handlDeleteRoom={handlDeleteRoom}
-                      />
-                    );
-                  }
-                })}
+                listRoom?.map((item: any, index: any) => (
+                  <List_Room
+                    item={item}
+                    index={index}
+                    checknv={checknv[0]}
+                    handlDeleteRoom={handlDeleteRoom}
+                    handlRequestRoom={requestRoom}
+                  />
+                ))}
             </div>
           </div>
         </div>

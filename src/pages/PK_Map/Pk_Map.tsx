@@ -14,6 +14,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import Dice from "../../components/Dice";
 import Invite_ListHero from "./components/Invite_ListHero";
+import Request_Hero from "./components/Request_Hero";
 const Pk_Map = () => {
   const navigate = useNavigate();
   const { id } = useParams(); // id phòng
@@ -199,27 +200,6 @@ const Pk_Map = () => {
       }
     }
   };
-  // Thoát khỏi phòng pk
-  // const handlExits = async () => {
-  //   if (
-  //     window.confirm(
-  //       "Bạn có muốn thoát khỏi phòng không ? \n Nếu thoát khỏi phòng bạn sẽ bị xử thua"
-  //     )
-  //   ) {
-  //     try {
-  //       const roomRef = doc(db, "roomPk", roomCode || "");
-  //       await deleteDoc(roomRef);
-  //       const user = doc(db, "dataFigure", checknv[0]?.id || "");
-  //       await updateDoc(user, {
-  //         status: false,
-  //       });
-  //       localStorage.removeItem("dataFigure2");
-  //       navigate("/main");
-  //     } catch (error) {
-  //       console.log("xoá phòng thất bại");
-  //     }
-  //   }
-  // };
   useEffect(() => {
     if (info_RoomPk?.start) {
       const interval = setInterval(() => {
@@ -232,9 +212,12 @@ const Pk_Map = () => {
           clearInterval(interval);
           (async () => {
             try {
+              console.log(checknv[0]?.id, "id");
+
               const user = doc(db, "dataFigure", checknv[0]?.id || "");
               await updateDoc(user, {
                 status: false,
+                request: null,
               });
               const roomRef = doc(db, "roomPk", roomCode || "");
               await deleteDoc(roomRef);
@@ -316,10 +299,36 @@ const Pk_Map = () => {
     // Xóa interval khi component unmount
     return () => clearInterval(intervalId);
   }, [info_RoomPk?.isActtack_nv1]);
+  // Đồng ý lời yêu cầu
+  const handleAccept = async () => {
+    try {
+      const roomRef = doc(db, "roomPk", roomCode || "");
+      await updateDoc(roomRef, {
+        start: true,
+        id_user_guest: info_RoomPk?.request?.id_user_request,
+        item_guest: info_RoomPk?.request?.item_request,
+        request: null,
+      });
+      localStorage.setItem(
+        "dataFigure2",
+        JSON.stringify(info_RoomPk?.request?.item_request)
+      );
+      const user = doc(db, "dataFigure", info_RoomPk?.request?.id_user_request);
+      await updateDoc(user, {
+        request: {
+          idRoom: roomCode,
+        },
+      });
+    } catch (error) {
+      console.log(error, "lỗi cập nhật máu và lượt");
+    }
+  };
   return (
     <>
       <div className="box-container w-screen max-h-screen">
         <ToastContainer />
+        {/* Request_Hero */}
+        <Request_Hero info_RoomPk={info_RoomPk} handleAccept={handleAccept} />
         <div className="pk_number text-center ">
           <h1 className="text-xl font-medium ring w-32 h-10 mx-auto bg-red-500 text-white mt-5 pt-1 rounded-sm">
             {info_RoomPk?.nameRoom}
@@ -344,8 +353,18 @@ const Pk_Map = () => {
               Rời khỏi phòng
             </button>
           </div> */}
-          <div className=" pt-20 relative">
+          <div className=" pt-10 relative">
             <div className="figure__boold absolute top-10 left-10">
+              <span>
+                HP:{" "}
+                {user_info2?.character?.blood
+                  ? info_RoomPk?.item_host?.character?.blood +
+                    "/" +
+                    user_info?.character?.blood
+                  : info_RoomPk?.item_guest?.character?.blood +
+                    "/" +
+                    user_info?.character?.blood}
+              </span>
               <div className="flex justify-between">
                 {" "}
                 <h1 className="">{user_info.name}</h1>
@@ -430,6 +449,17 @@ const Pk_Map = () => {
             </div>
             {info_RoomPk.id_user_guest !== null ? (
               <div className="figure__boold absolute top-10 right-10">
+                <span>
+                  {" "}
+                  HP:
+                  {user_info2.character?.blood
+                    ? info_RoomPk?.item_guest?.character?.blood +
+                      "/" +
+                      user_info2?.character?.blood
+                    : info_RoomPk?.item_host?.character?.blood +
+                      "/" +
+                      MaxHp[0]?.character?.blood}
+                </span>
                 <div className="flex justify-between">
                   {" "}
                   <h1>{user_info2.name || info_RoomPk?.item_host?.name}</h1>
