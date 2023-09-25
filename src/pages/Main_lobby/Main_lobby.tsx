@@ -210,10 +210,6 @@ const MainLobby = () => {
           item_request: user_info,
         },
       });
-      const user = doc(db, "dataFigure", checknv[0]?.id || "");
-      await updateDoc(user, {
-        status: true,
-      });
       // navigate(`/pk_map/${id}`);
       // toast.success("Tham gia phòng thành công");
     } catch (error) {

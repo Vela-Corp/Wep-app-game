@@ -318,9 +318,21 @@ const Pk_Map = () => {
         request: {
           idRoom: roomCode,
         },
+        status: true,
       });
     } catch (error) {
-      console.log(error, "lỗi cập nhật máu và lượt");
+      console.log(error);
+    }
+  };
+  // không đồng ý lời yêu cầu
+  const handlExits = async () => {
+    try {
+      const roomRef = doc(db, "roomPk", roomCode || "");
+      await updateDoc(roomRef, {
+        request: null,
+      });
+    } catch (error) {
+      console.log(error);
     }
   };
   return (
@@ -328,7 +340,11 @@ const Pk_Map = () => {
       <div className="box-container w-screen max-h-screen">
         <ToastContainer />
         {/* Request_Hero */}
-        <Request_Hero info_RoomPk={info_RoomPk} handleAccept={handleAccept} />
+        <Request_Hero
+          info_RoomPk={info_RoomPk}
+          handleAccept={handleAccept}
+          handlExits={handlExits}
+        />
         <div className="pk_number text-center ">
           <h1 className="text-xl font-medium ring w-32 h-10 mx-auto bg-red-500 text-white mt-5 pt-1 rounded-sm">
             {info_RoomPk?.nameRoom}

@@ -1,6 +1,6 @@
 import { Modal } from "antd";
 
-const Request_Hero = ({ info_RoomPk, handleAccept }: any) => {
+const Request_Hero = ({ info_RoomPk, handleAccept, handlExits }: any) => {
   return (
     <>
       <Modal
@@ -9,6 +9,7 @@ const Request_Hero = ({ info_RoomPk, handleAccept }: any) => {
         style={{ top: "30%" }}
         open={info_RoomPk?.request}
         onOk={() => handleAccept()}
+        onCancel={() => handlExits()}
       >
         <div className="box-invitation">
           <span className="text-lg font-medium">
