@@ -134,7 +134,7 @@ const Create = () => {
             backgroundSize: "cover",
           }}
         >
-          <div className="content flex justify-center items-start w-2/3 mx-auto">
+          <div className="content flex justify-center items-start w-full px-2 sm:w-2/3 mx-auto">
             <div className="form-figure w-full xl:w-3/5 bg-white min-h-[600px] mt-20 bg-opacity-90 rounded-md">
               <h1 className="text-center pt-2 text-red-600 text-2xl">
                 Tạo nhân vật

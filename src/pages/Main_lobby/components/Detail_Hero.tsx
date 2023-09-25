@@ -17,8 +17,8 @@ const Detail_Hero = ({ user_info, character, handlIncrease }: any) => {
             </div>
           </div>
           <div className="content-character bg-white rounded-md p-3 mt-3">
-            <div className="box flex items-start gap-3">
-              <div className="big-image w-2/3">
+            <div className="box flex items-start justify-center md:justify-normal gap-3">
+              <div className="big-image md:block hidden w-2/5">
                 <img
                   className="w-full object-cover"
                   src="https://thuthuatnhanh.com/wp-content/uploads/2022/12/hinh-anh-tanjiro.jpg"
@@ -31,16 +31,17 @@ const Detail_Hero = ({ user_info, character, handlIncrease }: any) => {
                 </h1>
                 <div className="character flex items-start justify-between gap-5 mt-5">
                   <div className="cols-1 flex flex-col gap-2">
-                    <span className="flex items-center gap-2 text-lg font-medium">
+                    <span className="flex items-center gap-2 text-lg font-medium w-24">
                       <img
                         className="w-6"
                         src="../../src/assets/image39.png"
                         alt=""
                       />
-                      {character?.physics}
+                      <b> {character?.physics}</b>
+
                       <i
                         onClick={() => handlIncrease("physics")}
-                        className="cursor-pointer "
+                        className="cursor-pointer w-full text-right"
                       >
                         <FontAwesomeIcon
                           className="text-sm ring-2 ring-black active:ring-2 active:ring-yellow-400 rounded-sm p-[1px]"
@@ -48,16 +49,16 @@ const Detail_Hero = ({ user_info, character, handlIncrease }: any) => {
                         />
                       </i>
                     </span>
-                    <span className="flex items-center gap-2 text-lg font-medium">
+                    <span className="flex items-center gap-2 text-lg font-medium w-24">
                       <img
                         className="w-6"
                         src="../../src/assets/image41.png"
                         alt=""
                       />
-                      {character?.blood}
+                      <b> {character?.blood}</b>
                       <i
                         onClick={() => handlIncrease("blood")}
-                        className="cursor-pointer "
+                        className="cursor-pointer w-full text-right"
                       >
                         <FontAwesomeIcon
                           className="text-sm ring-2 ring-black active:ring-2 active:ring-yellow-400 rounded-sm p-[1px]"
@@ -74,7 +75,7 @@ const Detail_Hero = ({ user_info, character, handlIncrease }: any) => {
                       {character?.physicalArmor}
                       <i
                         onClick={() => handlIncrease("physicalArmor")}
-                        className="cursor-pointer "
+                        className="cursor-pointer w-full text-right"
                       >
                         <FontAwesomeIcon
                           className="text-sm ring-2 ring-black active:ring-2 active:ring-yellow-400 rounded-sm p-[1px]"
@@ -91,7 +92,7 @@ const Detail_Hero = ({ user_info, character, handlIncrease }: any) => {
                       {character?.penetratesPhysicalArmor}
                       <i
                         onClick={() => handlIncrease("penetratesPhysicalArmor")}
-                        className="cursor-pointer "
+                        className="cursor-pointer w-full text-right"
                       >
                         <FontAwesomeIcon
                           className="text-sm ring-2 ring-black active:ring-2 active:ring-yellow-400 rounded-sm p-[1px]"
@@ -108,7 +109,7 @@ const Detail_Hero = ({ user_info, character, handlIncrease }: any) => {
                       {character?.attackSpeed}
                       <i
                         onClick={() => handlIncrease("attackSpeed")}
-                        className="cursor-pointer "
+                        className="cursor-pointer w-full text-right"
                       >
                         <FontAwesomeIcon
                           className="text-sm ring-2 ring-black active:ring-2 active:ring-yellow-400 rounded-sm p-[1px]"
@@ -127,7 +128,7 @@ const Detail_Hero = ({ user_info, character, handlIncrease }: any) => {
                       {character?.public}
                       <i
                         onClick={() => handlIncrease("public")}
-                        className="cursor-pointer "
+                        className="cursor-pointer w-full text-right"
                       >
                         <FontAwesomeIcon
                           className="text-sm ring-2 ring-black active:ring-2 active:ring-yellow-400 rounded-sm p-[1px]"
@@ -144,7 +145,7 @@ const Detail_Hero = ({ user_info, character, handlIncrease }: any) => {
                       {character?.runningSpeed}
                       <i
                         onClick={() => handlIncrease("runningSpeed")}
-                        className="cursor-pointer "
+                        className="cursor-pointer w-full text-right"
                       >
                         <FontAwesomeIcon
                           className="text-sm ring-2 ring-black active:ring-2 active:ring-yellow-400 rounded-sm p-[1px]"
@@ -161,7 +162,7 @@ const Detail_Hero = ({ user_info, character, handlIncrease }: any) => {
                       {character?.magicArmor}
                       <i
                         onClick={() => handlIncrease("magicArmor")}
-                        className="cursor-pointer "
+                        className="cursor-pointer w-full text-right"
                       >
                         <FontAwesomeIcon
                           className="text-sm ring-2 ring-black active:ring-2 active:ring-yellow-400 rounded-sm p-[1px]"
@@ -178,7 +179,7 @@ const Detail_Hero = ({ user_info, character, handlIncrease }: any) => {
                       {character?.magicPenetration}
                       <i
                         onClick={() => handlIncrease("magicPenetration")}
-                        className="cursor-pointer "
+                        className="cursor-pointer w-full text-right"
                       >
                         <FontAwesomeIcon
                           className="text-sm ring-2 ring-black active:ring-2 active:ring-yellow-400 rounded-sm p-[1px]"
@@ -195,7 +196,7 @@ const Detail_Hero = ({ user_info, character, handlIncrease }: any) => {
                       {character?.cooldown}
                       <i
                         onClick={() => handlIncrease("cooldown")}
-                        className="cursor-pointer "
+                        className="cursor-pointer w-full text-right"
                       >
                         <FontAwesomeIcon
                           className="text-sm ring-2 ring-black active:ring-2 active:ring-yellow-400 rounded-sm p-[1px]"

@@ -6,7 +6,6 @@ import { AuthContext } from "../contetx/Context";
 import {
   addDoc,
   collection,
-  deleteDoc,
   doc,
   getDoc,
   onSnapshot,
@@ -71,7 +70,7 @@ const MainLobby = () => {
         console.log(error);
       }
     }
-    if (!user_info) {
+    if (!checknv[0]?.id) {
       toast.error("Vui lòng đăng nhập \n chuyển trang sau 2 giây", {
         autoClose: 1000,
       });
@@ -134,20 +133,20 @@ const MainLobby = () => {
     }
   }, [checknv[0]?.id]);
   // Delete room
-  const handlDeleteRoom = async (id: any) => {
-    try {
-      const roomRef = doc(db, "roomPk", id);
-      await deleteDoc(roomRef);
-      const user = doc(db, "dataFigure", checknv[0]?.id || "");
-      await updateDoc(user, {
-        status: false,
-      });
-      toast.success("Xoá phòng thành công");
-    } catch (error) {
-      console.log(error);
-      toast.error("Xoá phòng thất bại");
-    }
-  };
+  // const handlDeleteRoom = async (id: any) => {
+  //   try {
+  //     const roomRef = doc(db, "roomPk", id);
+  //     await deleteDoc(roomRef);
+  //     const user = doc(db, "dataFigure", checknv[0]?.id || "");
+  //     await updateDoc(user, {
+  //       status: false,
+  //     });
+  //     toast.success("Xoá phòng thành công");
+  //   } catch (error) {
+  //     console.log(error);
+  //     toast.error("Xoá phòng thất bại");
+  //   }
+  // };
   // hàm đồng ý vào phòng
   const acceptInvitation = async () => {
     try {
@@ -306,8 +305,8 @@ const MainLobby = () => {
               </div>
             </div>
           </div>
-          <div className="list-hero absolute top-10 left-10">
-            <div className="list bg-white rounded-md ring pl-3  py-3 min-w-[300px] max-w-[400px] ">
+          <div className="list-hero absolute top-10 left-0 xl:left-10">
+            <div className="list bg-white rounded-md ring pl-3 min-w-[250px]  py-3 xl:min-w-[300px] xl:max-w-[400px]  ">
               <h1 className="text-xl font-bold">Danh sách hero khác</h1>
               <div className="search">
                 <form onSubmit={hanldSearch}>
@@ -332,8 +331,8 @@ const MainLobby = () => {
               </div>
             </div>
           </div>
-          <div className="list-room absolute top-32 right-10 ">
-            <div className="list bg-white rounded-md ring-4 pl-3 pr-5 py-3 max-h-[500px] overflow-auto">
+          <div className="list-room absolute top-32 right-1 xl:right-10 ">
+            <div className="list bg-white rounded-md ring-4 pl-3 pr-5 py-3 md:max-h-[500px] max-w-[260px] md:max-w-max overflow-auto">
               <h1 className="text-xl font-bold">Danh sách Room </h1>
               {listRoom &&
                 listRoom?.map((item: any, index: any) => (
@@ -341,7 +340,7 @@ const MainLobby = () => {
                     item={item}
                     index={index}
                     checknv={checknv[0]}
-                    handlDeleteRoom={handlDeleteRoom}
+                    // handlDeleteRoom={handlDeleteRoom}
                     handlRequestRoom={requestRoom}
                   />
                 ))}

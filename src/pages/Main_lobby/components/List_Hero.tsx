@@ -7,7 +7,7 @@ const List_Hero = ({ item, index }: any) => {
         key={index}
         className="hero flex items-center justify-start gap-3 border-b-2 border-yellow-500 border-s-2 p-2 cursor-pointer"
       >
-        <div className="image w-14">
+        <div className="image  w-14  ">
           <img src={`/Rectangle507.png`} alt="" />
         </div>
         <div className="info-character ">

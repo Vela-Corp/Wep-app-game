@@ -54,19 +54,19 @@ const Detail_Hero = () => {
               </div>
             </div>
             <div className="content-character bg-white rounded-md p-3 mt-3">
-              <div className="box flex items-start gap-3">
+              <div className="box flex items-start  gap-3">
                 <div className="big-image w-2/3">
                   <img
-                    className="w-full object-cover"
+                    className="w-full object-cover my-auto"
                     src="https://thuthuatnhanh.com/wp-content/uploads/2022/12/hinh-anh-tanjiro.jpg"
                     alt=""
                   />
                 </div>
-                <div className="info-character w-1/3 pr-2">
+                <div className="info-character w-2/3 pr-2">
                   <h1 className="text-center text-xl font-semibold">
                     {detailHero?.class}
                   </h1>
-                  <div className="character flex items-start gap-3 mt-5">
+                  <div className="character flex items-start justify-center gap-5 mt-5">
                     <div className="cols-1 flex flex-col gap-2">
                       <span className="flex items-center gap-2 text-lg font-medium">
                         <img
